@@ -1,3 +1,3 @@
 from fastapi import APIRouter
 
-router = APIRouter(prefix="/api/whatsapp")
+router = APIRouter(prefix="/api/whatsapp", tags=["WHATSAPP"])

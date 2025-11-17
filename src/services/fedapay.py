@@ -1,10 +1,15 @@
+import os
+
 import httpx
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class FedaPay:
     def __init__(self) -> None:
         self.url = "https://api.fedapay.com/v1"
-        self.token = "sk_live_pEA-ghyrq-jr1kAIk2Nco46Q"
+        self.token = os.getenv("FEDAPAY_TOKEN")
         self.headers = {
             "Authorization": f"Bearer {self.token}",
             "Content-Type": "application/json",
@@ -41,4 +46,9 @@ class FedaPay:
         response = httpx.post(
             f"{self.url}/transactions", json=payload, headers=self.headers
         )
+        return response.json()
+
+    def get_transaction(self, transactionId: str) -> dict:
+        url = f"{self.url}/transactions/{transactionId}"
+        response = httpx.get(url, headers=self.headers)
         return response.json()
