@@ -1,44 +1,51 @@
 <template>
-  <div class="p-6">
-    <h1 class="text-2xl font-bold text-center mb-6">Groupe : {{ groupId }}</h1>
-    
-    <Form
-      :loading="isLoading" 
-      :on-submit="createCustomer" 
-    />
-  </div>
+    <div class="p-6">
+        <h1 class="text-2xl font-bold text-center mb-6">
+            Groupe : {{ groupId }}
+        </h1>
+
+        <Form :loading="isLoading" @success="onCustomerCreated" />
+
+        <div v-if="createdCustomer" class="mt-10">
+            <Transaction
+                v-model="transactionForm"
+                :customer="createdCustomer"
+            />
+        </div>
+    </div>
 </template>
 
-
 <script setup lang="ts">
-import type { CustomerFormState, FedaPayResponse } from '~/types/fedapay'
+import Form from "~/components/Form.vue";
+import Transaction from "~/components/Transaction.vue";
+import type { CreatedCustomer, SuccessData } from "~/types/fedapay";
+import type { TransactionPayload } from "~/types/transaction";
 
-const route = useRoute()
-const toast = useToast()
-const groupId = route.params.groupId
-const isLoading = ref(false)
+const route = useRoute();
+const groupId = Number(route.params.groupId);
+const isLoading = ref(false);
+const createdCustomer = ref<CreatedCustomer | null>(null);
+const transactionForm = reactive<TransactionPayload>({
+    description: `Cotisation Groupe ${groupId}`,
+    amount: 1000,
+    callback_url: "https://ton-site.com/callback",
+    customer_id: "",
+    whatsapp_number: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+    confirm_whatsapp_number: "",
+    country: "bj",
+    group_id: groupId,
+});
 
-// Cette fonction est passée directement au composant Form
-const createCustomer = async (formData: CustomerFormState) => {
-  isLoading.value = true
-  
-  try {
-    const response = await $fetch<FedaPayResponse>('/api/fedapay/create-customer', {
-      method: 'POST',
-      body: formData
-    })
-    toast.add({ title: 'Succès', description: response || 'Client créé avec succès'})
-
-  } catch (error: any) {
-    const status = error?.status || 500
-    const message = error?.data?.message || error?.message || 'Une erreur est survenue'
-    
-    toast.add({ 
-      title: 'Erreur', 
-      description: `Erreur ${status}: ${message}`
-    })
-  } finally {
-    isLoading.value = false
-  }
-}
+const onCustomerCreated = (data: {
+    customer: CreatedCustomer;
+    whatsapp_number: string;
+}) => {
+    console.log("Événement success reçu:", data);
+    createdCustomer.value = data.customer;
+    transactionForm.customer_id = data.customer.account_id.toString();
+    transactionForm.whatsapp_number = data.whatsapp_number;
+};
 </script>
