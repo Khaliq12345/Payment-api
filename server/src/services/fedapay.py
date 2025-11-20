@@ -37,7 +37,10 @@ class FedaPay:
             "amount": transaction_data["amount"],
             "currency": {"iso": transaction_data["currency"]},
             "callback_url": transaction_data["callback_url"],
-            "custom_metadata": transaction_data["whatsapp_number"],
+            "custom_metadata": {
+                "whatsapp_number": transaction_data["whatsapp_number"],
+                "group_id": transaction_data["group_id"],
+            },
             "customer": {
                 "id": transaction_data["customer_id"],
             },

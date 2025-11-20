@@ -1,7 +1,4 @@
-from tokenize import group
-
 from fastapi import APIRouter
-from fastapi.params import Query
 
 from src.services.whatsapp import Whatsapp
 
@@ -20,7 +17,7 @@ def get_chats():
     return whatapp.get_chats()
 
 
-@router.get("/add")
+@router.post("/add")
 def add_user_to_group(groupId: int, phone: int):
     whatsapp = Whatsapp()
     return whatsapp.add_to_group(groupId, phone)
