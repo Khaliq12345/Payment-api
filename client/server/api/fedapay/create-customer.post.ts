@@ -1,11 +1,11 @@
-import { FedaPayCustomerPayload, FedaPayResponse, FedaPayValidationError } from '~/types/fedapay'
+import { CreateCustomerResponse } from '~/types/fedapay'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (!body) throw createError({ statusCode: 400, statusMessage: 'Données manquantes' })
 
-  const externalPayload: FedaPayCustomerPayload = {
+  const externalPayload = {
     first_name: body.first_name,
     last_name: body.last_name,
     email: body.email,
@@ -14,11 +14,22 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const response = await $fetch<FedaPayResponse>('http://0.0.0.0:5000/api/fedapay/create-customer', {
+    const response = await $fetch<any>('http://0.0.0.0:5000/api/fedapay/create-customer', {
       method: 'POST',
       body: externalPayload
     })
-    return response
+    console.log('Raw API response:', response)
+
+    if (response.message) {
+      // Erreur de l'API
+      throw createError({ statusCode: 400, statusMessage: response.message })
+    }
+
+    if (!response["v1/customer"]) {
+      throw createError({ statusCode: 500, statusMessage: 'Réponse API invalide' })
+    }
+
+    return response["v1/customer"]
 
   } catch (error: any) {
     let errorMessage = 'Erreur lors de la création du client'

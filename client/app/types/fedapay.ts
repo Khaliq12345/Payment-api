@@ -1,28 +1,20 @@
-
-export interface CustomerFormState {
-  first_name: string;
-  last_name: string;
+export interface CreatedCustomer {
+  firstname: string;
+  lastname: string;
+  full_name: string;
   email: string;
+  account_id: number;
+  phone_number_id?: number;
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+}
+
+export interface CreateCustomerResponse {
+  "v1/customer": CreatedCustomer;
+}
+
+export type SuccessData = {
+  customer: CreatedCustomer;
   whatsapp_number: string;
-  confirm_whatsapp_number: string;
-  country: string;
-}
-
-// Payload envoyé à l'API 
-export interface FedaPayCustomerPayload {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string;
-  country: string;
-}
-
-
-export type FedaPayResponse = string;
-
-// Gestion d'erreur Swagger (422)
-export interface FedaPayValidationError {
-  detail: {
-    msg: string;
-  }[];
-}
+};
