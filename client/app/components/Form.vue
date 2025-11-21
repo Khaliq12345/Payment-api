@@ -14,30 +14,32 @@
         >
             <!-- Prénom et Nom -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <UFormGroup label="Prénom" name="first_name" required>
-                    <UInput v-model="state.first_name" placeholder="Ex: Jean" />
-                </UFormGroup>
+                <UFormField label="Prénom" name="first_name" required>
+                    <UInput v-model="state.first_name" placeholder="Ex: Jean" class="w-full" />
+                </UFormField>
 
-                <UFormGroup label="Nom" name="last_name" required>
+                <UFormField label="Nom" name="last_name" required>
                     <UInput
                         v-model="state.last_name"
                         placeholder="Ex: Dupont"
+                        class="w-full"
                     />
-                </UFormGroup>
+                </UFormField>
             </div>
 
             <!-- Email -->
-            <UFormGroup label="Email" name="email" required>
+            <UFormField label="Email" name="email" required>
                 <UInput
                     v-model="state.email"
                     type="email"
                     placeholder="exemple@email.com"
+                    class="w-full"
                 />
-            </UFormGroup>
+            </UFormField>
 
             <!-- WhatsApp et Confirmation -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <UFormGroup
+                <UFormField
                     label="WhatsApp"
                     name="whatsapp_number"
                     help="Format: 229..."
@@ -47,10 +49,11 @@
                         v-model="state.whatsapp_number"
                         placeholder="22997000000"
                         type="tel"
+                        class="w-full"
                     />
-                </UFormGroup>
+                </UFormField>
 
-                <UFormGroup
+                <UFormField
                     label="Confirmer WhatsApp"
                     name="confirm_whatsapp_number"
                     required
@@ -59,19 +62,21 @@
                         v-model="state.confirm_whatsapp_number"
                         placeholder="Répéter le numéro"
                         type="tel"
+                        class="w-full"
                     />
-                </UFormGroup>
+                </UFormField>
             </div>
 
             <!-- Pays -->
-            <UFormGroup label="Pays" name="country" required>
+            <UFormField label="Pays" name="country" required>
                 <USelect
                     v-model="state.country"
                     :options="countries"
                     option-attribute="label"
                     value-attribute="value"
+                    class="w-full"
                 />
-            </UFormGroup>
+            </UFormField>
 
             <!-- Bouton de soumission -->
             <div class="pt-4">
@@ -172,7 +177,7 @@ const onFormSubmit = async (event: any) => {
         toast.add({
             title: "Succès",
             description: `Client ${response.full_name} créé avec succès`,
-            color: "green",
+            color: "success",
         });
 
         // Mise à jour du model
@@ -189,7 +194,7 @@ const onFormSubmit = async (event: any) => {
         toast.add({
             title: "Erreur",
             description: `(${status}) ${message}`,
-            color: "red",
+            color: "error",
         });
     } finally {
         isLoading.value = false;
