@@ -1,51 +1,27 @@
 <template>
-    <div class="p-6">
-        <h1 class="text-2xl font-bold text-center mb-6">
+    <div class="p-6 max-w-3xl mx-auto">
+        <h1 class="text-2xl font-bold text-center mb-8">
             Groupe : {{ groupId }}
         </h1>
 
-        <Form :loading="isLoading" @success="onCustomerCreated" />
+        <!-- Affiche le formulaire tant que customerData est null -->
+        <Form v-if="!customerData" v-model="customerData" />
 
-        <div v-if="createdCustomer" class="mt-10">
-            <Transaction
-                v-model="transactionForm"
-                :customer="createdCustomer"
-            />
-        </div>
+        <!-- Affiche la transaction une fois le client créé -->
+        <Transaction
+            v-else
+            :customer="customerData.response"
+            :whatsapp-number="customerData.whatsapp_number"
+            :group-id="groupId"
+        />
     </div>
 </template>
 
 <script setup lang="ts">
-import Form from "~/components/Form.vue";
-import Transaction from "~/components/Transaction.vue";
-import type { CreatedCustomer, SuccessData } from "~/types/fedapay";
-import type { TransactionPayload } from "~/types/transaction";
+import type { CustomerState } from "~/types/fedapay";
 
 const route = useRoute();
 const groupId = Number(route.params.groupId);
-const isLoading = ref(false);
-const createdCustomer = ref<CreatedCustomer | null>(null);
-const transactionForm = reactive<TransactionPayload>({
-    description: `Cotisation Groupe ${groupId}`,
-    amount: 1000,
-    callback_url: "https://ton-site.com/callback",
-    customer_id: "",
-    whatsapp_number: "",
-    first_name: "",
-    last_name: "",
-    email: "",
-    confirm_whatsapp_number: "",
-    country: "bj",
-    group_id: groupId,
-});
 
-const onCustomerCreated = (data: {
-    customer: CreatedCustomer;
-    whatsapp_number: string;
-}) => {
-    console.log("Événement success reçu:", data);
-    createdCustomer.value = data.customer;
-    transactionForm.customer_id = data.customer.account_id.toString();
-    transactionForm.whatsapp_number = data.whatsapp_number;
-};
+const customerData = ref<CustomerState>(null);
 </script>
