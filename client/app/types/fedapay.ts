@@ -1,4 +1,5 @@
 export interface CreatedCustomer {
+  id: number; //Ajout de l'ID pour correction
   firstname: string;
   lastname: string;
   full_name: string;
@@ -10,11 +11,11 @@ export interface CreatedCustomer {
   deleted_at?: string | null;
 }
 
+export type CustomerState = {
+  response: CreatedCustomer;
+  whatsapp_number: string;
+} | null;
+
 export interface CreateCustomerResponse {
   "v1/customer": CreatedCustomer;
 }
-
-export type SuccessData = {
-  customer: CreatedCustomer;
-  whatsapp_number: string;
-};
