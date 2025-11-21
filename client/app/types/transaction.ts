@@ -11,3 +11,7 @@ export type TransactionPayload = {
   country: string;
   group_id: number;
 };
+
+export type TransactionQuery = {
+  transactionId: string;
+};
