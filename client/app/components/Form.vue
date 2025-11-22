@@ -13,9 +13,13 @@
             @submit="onFormSubmit"
         >
             <!-- Prénom et Nom -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <UFormField label="Prénom" name="first_name" required>
-                    <UInput v-model="state.first_name" placeholder="Ex: Jean" class="w-full" />
+                    <UInput
+                        v-model="state.first_name"
+                        placeholder="Ex: Jean"
+                        class="w-full"
+                    />
                 </UFormField>
 
                 <UFormField label="Nom" name="last_name" required>
@@ -38,7 +42,7 @@
             </UFormField>
 
             <!-- WhatsApp et Confirmation -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
                 <UFormField
                     label="WhatsApp"
                     name="whatsapp_number"
@@ -71,9 +75,7 @@
             <UFormField label="Pays" name="country" required>
                 <USelect
                     v-model="state.country"
-                    :options="countries"
-                    option-attribute="label"
-                    value-attribute="value"
+                    :items="countries"
                     class="w-full"
                 />
             </UFormField>

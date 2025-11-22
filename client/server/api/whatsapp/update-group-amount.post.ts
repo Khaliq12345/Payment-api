@@ -1,11 +1,15 @@
-import type { WhatsAppChatsResponse } from "../../../app/types/whatsapp";
+export default defineEventHandler(async (event) => {
+  const query = getQuery(event);
 
-export default defineEventHandler(async () => {
   try {
-    const response: WhatsAppChatsResponse = await $fetch(
-      "http://0.0.0.0:5000/api/whatsapp/chats",
+    const response = await $fetch(
+      "http://0.0.0.0:5000/api/whatsapp/update-group-amount",
       {
-        method: "GET",
+        method: "POST",
+        params: {
+          group_id: query.group_id,
+          amount: query.amount,
+        },
       },
     );
 

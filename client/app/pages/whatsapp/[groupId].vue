@@ -21,7 +21,7 @@
 import type { CustomerState } from "~/types/fedapay";
 
 const route = useRoute();
-const groupId = Number(route.params.groupId);
+const groupId = route.params.groupId;
 
 const customerData = ref<CustomerState>(null);
 </script>
