@@ -1,8 +1,9 @@
-import json
 import os
 
 import httpx
 from dotenv import load_dotenv
+
+from src.utils import utils
 
 load_dotenv()
 
@@ -15,17 +16,6 @@ class FedaPay:
             "Authorization": f"Bearer {self.token}",
             "Content-Type": "application/json",
         }
-
-    def get_group_amount(self, group_id: str) -> float | None:
-        """Get the group amount from the a json file"""
-        try:
-            with open("./src/groups.json", "rb") as f:
-                json_string = f.read()
-                json_dict = json.loads(json_string)
-                return json_dict[f"{group_id}"]["amount"]
-        except Exception as e:
-            print(f"Error - {e}")
-            return None
 
     def create_customer(self, customer_data: dict) -> dict:
         payload = {
@@ -46,7 +36,7 @@ class FedaPay:
     def create_transaction(self, transaction_data: dict) -> dict:
         payload = {
             "description": transaction_data["description"],
-            "amount": self.get_group_amount(transaction_data["group_id"]),
+            "amount": utils.get_group_amount(transaction_data["group_id"]),
             "currency": {"iso": transaction_data["currency"]},
             "callback_url": transaction_data["callback_url"],
             "custom_metadata": {

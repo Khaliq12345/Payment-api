@@ -32,7 +32,7 @@ class Whatsapp:
         """Add user to group"""
         url = f"{self.url}/{self.whatsappInstance}/addGroupParticipant/{self.token}"
         payload = {
-            "groupId": f"{groupId}@g.us",
+            "groupId": groupId,
             "participantChatId": f"{phone}@c.us",
         }
         response = httpx.post(url, json=payload, headers=self.headers)
