@@ -10,3 +10,4 @@ wheels/
 .venv
 .env
 groups.json
+clients.json

@@ -25,7 +25,7 @@ def get_chats():
 
 
 @router.post("/add")
-def add_user_to_group(groupId: int, phone: int):
+def add_user_to_group(groupId: str, phone: int):
     whatsapp = Whatsapp()
     return whatsapp.add_to_group(groupId, phone)
 

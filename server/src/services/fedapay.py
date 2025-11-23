@@ -18,6 +18,7 @@ class FedaPay:
         }
 
     def create_customer(self, customer_data: dict) -> dict:
+        """Create a new customer"""
         payload = {
             "email": customer_data["email"],
             "phone_number": {
@@ -30,6 +31,13 @@ class FedaPay:
 
         response = httpx.post(
             f"{self.url}/customers", json=payload, headers=self.headers
+        )
+        return response.json()
+
+    def retrieve_customer(self, customer_id: str) -> dict:
+        """Retrieve a customer info with the customer id"""
+        response = httpx.get(
+            f"{self.url}/customers/{customer_id}", headers=self.headers
         )
         return response.json()
 

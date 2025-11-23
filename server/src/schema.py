@@ -22,4 +22,4 @@ class Transaction(BaseModel):
     callback_url: str
     customer_id: int
     whatsapp_number: int
-    group_id: int
+    group_id: str

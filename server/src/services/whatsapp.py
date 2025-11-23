@@ -28,7 +28,7 @@ class Whatsapp:
         response = httpx.get(url)
         return response.json()
 
-    def add_to_group(self, groupId: int, phone: int):
+    def add_to_group(self, groupId: str, phone: int):
         """Add user to group"""
         url = f"{self.url}/{self.whatsappInstance}/addGroupParticipant/{self.token}"
         payload = {
