@@ -2,44 +2,22 @@
     <UCard class="max-w-2xl mx-auto mt-10">
         <template #header>
             <h2 class="text-2xl text-center font-bold">Résultat du paiement</h2>
+            <UProgress animation="swing" v-if="loading" />
         </template>
 
-        <div v-if="pending" class="text-center py-16 space-y-8">
-            <p class="text-sm text-gray-500">
-                Cela ne prendra que quelques secondes
-            </p>
-            <!-- Barre de progression-->
-            <UProgress
-                animation="carousel"
-                size="xl"
-                class="w-full max-w-md mx-auto"
-                color="primary"
-                model="value"
-            />
-        </div>
-
-        <!-- Erreur -->
-        <div v-else-if="error" class="text-center py-12 space-y-6">
-            <UIcon
-                name="i-heroicons-exclamation-triangle"
-                class="w-20 h-20 text-red-500 mx-auto"
-            />
-            <div>
-                <p class="text-xl font-bold text-red-700">
-                    Une erreur est survenue
-                </p>
-                <p class="mt-2 text-red-600">{{ error }}</p>
-            </div>
-        </div>
-
         <!-- Succès -->
-        <div v-else-if="transaction" class="space-y-8">
+        <div v-if="transaction && status == 'approved'" class="space-y-8">
             <!-- Statut -->
             <div
                 class="flex justify-between items-center py-4 border-b border-gray-200"
             >
                 <span class="text-lg font-semibold">Statut du paiement</span>
-                <UBadge :color="statusColor" variant="solid">
+                <UBadge
+                    :color="
+                        transaction.status === 'approved' ? 'success' : 'error'
+                    "
+                    variant="solid"
+                >
                     {{ transaction.status.toUpperCase() }}
                 </UBadge>
             </div>
@@ -80,7 +58,7 @@
                 v-if="transaction.receipt_url"
                 :to="transaction.receipt_url"
                 target="_blank"
-                color="gray"
+                color="success"
                 variant="outline"
                 block
                 size="lg"
@@ -97,7 +75,7 @@
                 "
                 @click="addToWhatsappGroup"
                 :loading="adding"
-                color="green"
+                color="success"
                 size="xl"
                 block
                 class="font-bold text-xl py-8 shadow-xl hover:shadow-2xl transition-all duration-300"
@@ -120,7 +98,7 @@
                         <UButton
                             :to="inviteLink"
                             target="_blank"
-                            color="green"
+                            color="success"
                             size="xl"
                             block
                             class="text-xl font-bold py-6"
@@ -138,129 +116,124 @@
             >
                 Vous avez déjà été ajouté au groupe WhatsApp
             </div>
-
-            <!-- Pending -->
-            <div
-                v-if="transaction.status === 'pending'"
-                class="text-center bg-amber-50 border-2 border-amber-300 rounded-xl p-8"
-            >
-                <UIcon
-                    name="i-heroicons-clock"
-                    class="w-16 h-16 text-amber-600 mx-auto mb-4"
-                />
-                <p class="text-xl font-bold text-amber-800">
-                    Paiement en cours de validation...
-                </p>
-                <p class="mt-3 text-amber-700">Revenez dans quelques minutes</p>
-            </div>
-
-            <!-- Échec -->
-            <div
-                v-else-if="transaction.status !== 'approved'"
-                class="text-center bg-red-50 border-2 border-red-300 rounded-xl p-8"
-            >
-                <UIcon
-                    name="i-heroicons-x-circle"
-                    class="w-16 h-16 text-red-600 mx-auto mb-4"
-                />
-                <p class="text-xl font-bold text-red-800">
-                    Paiement non validé
-                </p>
-                <p class="mt-3 text-red-700">
-                    Statut : {{ transaction.status }}
-                </p>
-            </div>
         </div>
 
-        <!-- Aucun ID -->
-        <div v-else class="text-center py-16 text-gray-500">
-            <p class="text-lg">
-                Aucun identifiant de transaction trouvé dans l'URL.
-            </p>
+        <!-- Échec -->
+        <div
+            v-if="status !== 'approved'"
+            class="text-center bg-red-50 border-2 border-red-300 rounded-xl p-8"
+        >
+            <UIcon
+                name="i-heroicons-x-circle"
+                class="w-16 h-16 text-red-600 mx-auto mb-4"
+            />
+            <p class="text-xl font-bold text-red-800">Paiement non validé</p>
+            <p class="mt-3 text-red-700">Statut : {{ status }}</p>
         </div>
     </UCard>
 </template>
 
 <script setup lang="ts">
-import type { TransactionResponse } from "~/types/transaction";
+import type { Transaction, TransactionResponse } from "~/types/transaction";
+import type { WhatsAppAddResponse } from "~/types/whatsapp";
 
 const route = useRoute();
 
 // États WhatsApp
+const loading = ref(false);
 const adding = ref(false);
 const hasAdded = ref(false);
 const inviteLink = ref<string | null>(null);
 
-// États loading
-const value = ref(null);
-
 // Récupération transaction
-const rawId = computed(
-    () =>
-        (route.query.id ??
-            route.query.transactionId ??
-            route.query.transaction_id ??
-            route.params.id ??
-            "") as string,
-);
-const transactionId = computed(() => {
-    const id = rawId.value.trim();
-    return id && !isNaN(Number(id)) ? Number(id) : null;
-});
+const status = route.query.status;
+const transId = route.query.id;
+const transaction = ref<Transaction>();
 
-const { data, pending, error } = useAsyncData<TransactionResponse | null>(
-    "fedapay-transaction",
-    async () => {
-        if (!transactionId.value) return null;
-        return await $fetch("/api/fedapay/transaction", {
-            query: { transactionId: transactionId.value },
+//toast
+const toast = useToast();
+
+onMounted(async () => {
+    // check if the transaction is approved
+    if (status !== "approved") return {};
+    loading.value = true;
+    try {
+        // send the requests to get the transaction info
+        const response = await $fetch<TransactionResponse>(
+            "/api/fedapay/transaction",
+            {
+                query: { transactionId: transId },
+            },
+        );
+
+        // extract the transaction info and display success notification
+        transaction.value = response["v1/transaction"];
+        toast.add({
+            title: "Verification de transaction reussi",
+            icon: "i-lucide-check-check",
+            color: "success",
         });
-    },
-    { immediate: true, watch: [transactionId] },
-);
-
-const transaction = computed(() => data.value?.["v1/transaction"] ?? null);
+    } catch (err) {
+        // log error to the console and display error notification
+        console.log(`Error - ${err}`);
+        toast.add({
+            title: "Erreur lors dela verification de la transaction; re-actualiser pour re-verifier",
+            icon: "i-lucide-bug",
+            color: "error",
+        });
+    } finally {
+        loading.value = false;
+    }
+});
 
 // Ajout au groupe WhatsApp
 const addToWhatsappGroup = async () => {
+    // verify if we have info about the transaction
     if (!transaction.value) return;
     adding.value = true;
     try {
-        const response = await $fetch("/api/whatsapp/add", {
-            method: "POST",
-            query: {
-                groupId: transaction.value.custom_metadata.group_id,
-                phone: transaction.value.custom_metadata.whatsapp_number,
+        // send the requests to add the user to the group
+        const response = await $fetch<WhatsAppAddResponse>(
+            "/api/whatsapp/add",
+            {
+                method: "POST",
+                query: {
+                    groupId: transaction.value.custom_metadata.group_id,
+                    phone: transaction.value.custom_metadata.whatsapp_number,
+                },
             },
-        });
+        );
 
+        // check if user is added and display success notification
         if (response.addParticipant === true) {
             hasAdded.value = true;
             inviteLink.value = `https://chat.whatsapp.com/${transaction.value.custom_metadata.group_id}`;
+            toast.add({
+                title: "Vous êtes déjà dans le groupe",
+                icon: "i-lucide-badge-check",
+                color: "success",
+            });
         } else {
-            alert("Vous êtes déjà dans le groupe ou l'ajout a échoué.");
+            // display warning notification if user is not added
+            toast.add({
+                title: "Vous êtes déjà dans le groupe ou l'ajout a échoué.",
+                icon: "i-lucide-circle-alert",
+                color: "warning",
+            });
         }
     } catch (err) {
+        // in case of error, log the error and display the notification
         console.error(err);
-        alert("Erreur réseau. Réessayez dans quelques instants.");
+        toast.add({
+            title: "Erreur réseau. Réessayez dans quelques instants.",
+            icon: "i-lucide-bug",
+            color: "error",
+        });
     } finally {
         adding.value = false;
     }
 };
 
-// Helpers
-const statusColor = computed(() =>
-    transaction.value?.status === "approved"
-        ? "green"
-        : transaction.value?.status === "pending"
-          ? "yellow"
-          : "red",
-);
-const fullName = computed(() =>
-    transaction.value
-        ? `${transaction.value.metadata.paid_customer.firstname} ${transaction.value.metadata.paid_customer.lastname}`.trim()
-        : "",
-);
 const formatWhatsapp = (num: number) => `+${num}`;
 const formatDate = (dateStr: string) =>
     new Date(dateStr).toLocaleString("fr-FR", {
@@ -270,4 +243,9 @@ const formatDate = (dateStr: string) =>
         hour: "2-digit",
         minute: "2-digit",
     });
+const fullName = computed(() =>
+    transaction.value
+        ? `${transaction.value.metadata.paid_customer.firstname} ${transaction.value.metadata.paid_customer.lastname}`.trim()
+        : "",
+);
 </script>

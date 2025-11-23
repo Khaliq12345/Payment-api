@@ -4,8 +4,7 @@
             Groupe : {{ groupId }}
         </h1>
 
-        <!-- Affiche le formulaire tant que customerData est null -->
-        <Form v-if="!customerData" v-model="customerData" />
+        <Form v-model="customerData" v-if="!customerData" />
 
         <!-- Affiche la transaction une fois le client créé -->
         <Transaction
@@ -24,4 +23,17 @@ const route = useRoute();
 const groupId = route.params.groupId;
 
 const customerData = ref<CustomerState>(null);
+
+const items = [
+    {
+        label: "Je suis un nouvel utilisateur",
+        icon: "i-lucide-user",
+        slot: "new",
+    },
+    {
+        label: "J'ai un compte",
+        icon: "i-lucide-lock",
+        slot: "old",
+    },
+];
 </script>

@@ -5,7 +5,9 @@
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white">
                     Détails du Client
                 </h3>
-                <UBadge color="green" variant="subtle" size="lg">Succès</UBadge>
+                <UBadge color="success" variant="subtle" size="lg"
+                    >Succès</UBadge
+                >
             </div>
         </template>
 
@@ -90,7 +92,7 @@ import type { CreatedCustomer } from "~/types/fedapay";
 const props = defineProps<{
     customer: CreatedCustomer;
     whatsappNumber: string;
-    groupId: number;
+    groupId: string;
 }>();
 
 const toast = useToast();
@@ -104,7 +106,7 @@ const generateLink = async () => {
 
     try {
         const payload = {
-            description: `Cotisation Groupe ${props.groupId}`,
+            description: `Paiment du Groupe ${props.groupId}`,
             amount: 1000,
             currency: "XOF",
             callback_url: window.location.origin + "/callback",
@@ -125,7 +127,7 @@ const generateLink = async () => {
             title: "Lien généré",
             description: "Le lien est prêt pour le paiement.",
             icon: "i-heroicons-check-circle",
-            color: "green",
+            color: "success",
         });
     } catch (error: any) {
         const status = error?.status || 500;
@@ -137,7 +139,7 @@ const generateLink = async () => {
         toast.add({
             title: "Erreur Transaction",
             description: `Erreur ${status}: ${message}`,
-            color: "red",
+            color: "error",
         });
     } finally {
         isTransactionLoading.value = false;

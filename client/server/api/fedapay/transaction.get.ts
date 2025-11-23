@@ -1,6 +1,7 @@
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
   const transactionId = query.transactionId;
+  const config = useRuntimeConfig(event);
 
   if (!transactionId) {
     throw createError({
@@ -10,13 +11,11 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const response = await $fetch(
-      `http://localhost:8000/api/fedapay/transaction`,
-      {
-        method: "GET",
-        query: { transactionId },
-      },
-    );
+    const response = await $fetch("/api/fedapay/transaction", {
+      method: "GET",
+      query: { transactionId },
+      baseURL: config.API_URL,
+    });
     return response;
   } catch (error) {
     throw createError({

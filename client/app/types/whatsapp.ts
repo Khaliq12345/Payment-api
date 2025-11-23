@@ -3,7 +3,7 @@ export type WhatsAppVerifyQuery = {
 };
 
 export type WhatsAppAddQuery = {
-  groupId: number;
+  groupId: string;
   phone: number;
 };
 
@@ -11,4 +11,6 @@ export type WhatsAppVerifyResponse = string;
 
 export type WhatsAppChatsResponse = string;
 
-export type WhatsAppAddResponse = string;
+export type WhatsAppAddResponse = {
+  addParticipant: boolean;
+};

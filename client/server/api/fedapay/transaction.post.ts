@@ -1,15 +1,13 @@
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
-  const config = useRuntimeConfig();
+  const config = useRuntimeConfig(event);
 
   try {
-    const response: any = await $fetch(
-      "http://0.0.0.0:5000/api/fedapay/transaction",
-      {
-        method: "POST",
-        body: body,
-      },
-    );
+    const response: any = await $fetch("/api/fedapay/transaction", {
+      method: "POST",
+      body: body,
+      baseURL: config.API_URL,
+    });
 
     const link =
       response.transaction_link || response["v1/transaction"]?.payment_url;

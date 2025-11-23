@@ -26,7 +26,7 @@ interface Metadata {
 
 interface CustomMetadata {
   whatsapp_number: number;
-  group_id: number;
+  group_id: string;
 }
 
 export interface Transaction extends TransactionPayload {

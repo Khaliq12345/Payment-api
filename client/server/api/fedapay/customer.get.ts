@@ -1,23 +1,15 @@
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
   const config = useRuntimeConfig(event);
+  const { email } = getQuery(event);
 
-  if (!body)
-    throw createError({ statusCode: 400, statusMessage: "Données manquantes" });
-
-  const externalPayload = {
-    first_name: body.first_name,
-    last_name: body.last_name,
-    email: body.email,
-    phone_number: body.whatsapp_number,
-    country: body.country,
-  };
-
+  console.log(config.API_URL);
   try {
-    const response = await $fetch<any>("/api/fedapay/create-customer", {
-      method: "POST",
-      body: externalPayload,
+    const response = await $fetch("/api/fedapay/get-customer", {
       baseURL: config.API_URL,
+      method: "GET",
+      params: {
+        email: email,
+      },
     });
     console.log("Raw API response:", response);
 

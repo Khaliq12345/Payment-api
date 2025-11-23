@@ -4,6 +4,7 @@ import type { WhatsAppAddQuery, WhatsAppAddResponse } from "~/types/whatsapp";
 export default defineEventHandler(
   async (event): Promise<WhatsAppAddResponse> => {
     const query = getQuery(event) as WhatsAppAddQuery;
+    const config = useRuntimeConfig(event);
 
     if (!query.groupId || !query.phone) {
       throw createError({
@@ -13,13 +14,11 @@ export default defineEventHandler(
     }
 
     try {
-      const response = await $fetch<WhatsAppAddResponse>(
-        "http://localhost:8000/api/whatsapp/add",
-        {
-          method: "POST",
-          query,
-        },
-      );
+      const response = await $fetch<WhatsAppAddResponse>("/api/whatsapp/add", {
+        method: "POST",
+        query: query,
+        baseURL: config.API_URL,
+      });
 
       return response;
     } catch (error: any) {
