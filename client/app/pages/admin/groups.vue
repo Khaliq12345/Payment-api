@@ -47,6 +47,11 @@
 <script setup lang="ts">
 import { useClipboard } from "@vueuse/core";
 
+// Auth middleware 
+definePageMeta({
+  middleware: ['auth']
+});
+
 const { copy, copied } = useClipboard();
 const groups = ref([]);
 const Amountloading = ref(false);
