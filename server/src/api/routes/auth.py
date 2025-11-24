@@ -1,8 +1,9 @@
+import os
+
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
-import os
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -18,25 +19,33 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    """
-    Auth simplifiée — identique à la doc FastAPI mais
-    avec vérification simple via .env
-    """
+    """Auth simplifiée avec format standard et gestion des erreurs"""
+    try:
+        if not ENV_USERNAME or not ENV_PASSWORD:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="AUTH_USERNAME or AUTH_PASSWORD missing in .env",
+            )
 
-    if not ENV_USERNAME or not ENV_PASSWORD:
+        if form_data.username != ENV_USERNAME or form_data.password != ENV_PASSWORD:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Incorrect username or password",
+            )
+
+        # Retour formaté
+        return {
+            "status": 200,
+            "message": "Login successful",
+            "data": {"access_token": form_data.username, "token_type": "bearer"},
+        }
+
+    except HTTPException as http_err:
+        raise http_err
+    except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="AUTH_USERNAME or AUTH_PASSWORD missing in .env"
+            detail=f"Unexpected error: {str(e)}",
         )
-
-    # Vérification simple
-    if form_data.username != ENV_USERNAME or form_data.password != ENV_PASSWORD:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Incorrect username or password",
-        )
-
-    # On retourne un token simple comme dans la doc
-    return TokenResponse(access_token=form_data.username)
