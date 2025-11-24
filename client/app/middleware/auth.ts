@@ -3,21 +3,17 @@ export default defineNuxtRouteMiddleware((to, from) => {
   if (import.meta.server) return
 
   const user = localStorage.getItem('user')
+  const expiredAt = localStorage.getItem('expired_at')
 
-  // Si pas d'utilisateur connecté, on redirige vers la page de connexion
-  if (!user) return navigateTo('/login')
+  // Si pas d'utilisateur ou pas de date d'expiration, on redirige
+  if (!user || !expiredAt) return navigateTo('/login')
 
-  try {
-    const { expire_at } = JSON.parse(user)
-
-    // Vérification de l'expiration de la session
-    if (new Date() > new Date(expire_at)) {
-      localStorage.removeItem('user')
-      return navigateTo('/login')
-    }
-  } catch (e) {
-    // En cas d'erreur de lecture, on nettoie et on redirige
+  // Vérification de l'expiration
+  if (new Date() > new Date(expiredAt)) {
+    
+    // Session expirée 
     localStorage.removeItem('user')
+    localStorage.removeItem('expired_at')
     return navigateTo('/login')
   }
 })
