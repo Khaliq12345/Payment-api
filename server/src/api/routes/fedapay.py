@@ -10,50 +10,123 @@ router = APIRouter(prefix="/api/fedapay", tags=["FEDAPAY"])
 
 @router.post("/create-customer")
 def create_customer(customer: Customer):
-    customer_dict = jsonable_encoder(customer)
-    fedapay = FedaPay()
+    try:
+        customer_dict = jsonable_encoder(customer)
+        fedapay = FedaPay()
 
-    customer_info = get_user(customer.email)
-    customer_id = customer_info.get("user_id")
-    if customer_id:
-        response = fedapay.retrieve_customer(customer_id)
-    else:
-        response = fedapay.create_customer(customer_dict)
-    customer_data = response.get("v1/customer")
-    if not customer_data:
-        raise HTTPException(
-            detail="Erreur lors de la creation du user", status_code=500
-        )
-    add_user(customer.email, customer_data["id"], customer.phone_number)
-    return response
+        # Vérifier si user existe déjà
+        customer_info = get_user(customer.email)
+        customer_id = customer_info.get("user_id") if customer_info else None
+
+        if customer_id:
+            response = fedapay.retrieve_customer(customer_id)
+        else:
+            response = fedapay.create_customer(customer_dict)
+
+        # Vérifier la réponse FedaPay
+        customer_data = response.get("v1", {}).get("customer")
+        if not customer_data:
+            raise HTTPException(
+                status_code=500, detail="Erreur lors de la création du user"
+            )
+
+        # Sauvegarde local DB / fichier
+        add_user(customer.email, customer_data["id"], customer.phone_number)
+
+        return {
+            "status": 200,
+            "message": "Customer created successfully",
+            "data": customer_data,
+        }
+
+    except HTTPException as http_err:
+        raise http_err
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 
 @router.get("/get-customer")
 def get_customer(email: str):
-    """Endpoint to retrieve customer info"""
-    customer = get_user(email)
-    print(customer)
-    customer_id = customer.get("user_id")
-    if not customer_id:
-        raise HTTPException(status_code=404, detail="User not found")
-    customer_phone = customer.get("number")
-    if not customer_phone:
-        return {}
-    fedapay = FedaPay()
-    response = fedapay.retrieve_customer(customer_id)
-    return response
+    try:
+        customer = get_user(email)
+        if not customer:
+            raise HTTPException(
+                status_code=404, detail=f"User with email '{email}' not found"
+            )
+
+        customer_id = customer.get("user_id")
+        if not customer_id:
+            raise HTTPException(
+                status_code=404, detail=f"User ID not found for email '{email}'"
+            )
+
+        fedapay = FedaPay()
+        response = fedapay.retrieve_customer(customer_id)
+        customer_data = response.get("v1", {}).get("customer")
+
+        if not customer_data:
+            raise HTTPException(
+                status_code=500,
+                detail="Erreur lors de la récupération du customer depuis FedaPay",
+            )
+
+        return {
+            "status": 200,
+            "message": "Customer retrieved successfully",
+            "data": customer_data,
+        }
+
+    except HTTPException as http_err:
+        raise http_err
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 
 @router.post("/transaction")
 def create_transaction(transaction: Transaction):
-    transaction_dict = jsonable_encoder(transaction)
-    fedapay = FedaPay()
-    response = fedapay.create_transaction(transaction_dict)
-    return response
+    try:
+        transaction_dict = jsonable_encoder(transaction)
+        fedapay = FedaPay()
+        response = fedapay.create_transaction(transaction_dict)
+        transaction_data = response.get("v1", {}).get("transaction")
+
+        if not transaction_data:
+            raise HTTPException(
+                status_code=500, detail="Erreur lors de la création de la transaction"
+            )
+
+        return {
+            "status": 200,
+            "message": "Transaction created successfully",
+            "data": transaction_data,
+        }
+
+    except HTTPException as http_err:
+        raise http_err
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 
 @router.get("/transaction")
 def get_transaction(transactionId: str):
-    fedapay = FedaPay()
-    response = fedapay.get_transaction(transactionId)
-    return response
+    try:
+        fedapay = FedaPay()
+        response = fedapay.get_transaction(transactionId)
+        transaction_data = response.get("v1", {}).get("transaction")
+
+        if not transaction_data:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Transaction with ID '{transactionId}' not found",
+            )
+
+        return {
+            "status": 200,
+            "message": "Transaction retrieved successfully",
+            "data": transaction_data,
+        }
+
+    except HTTPException as http_err:
+        raise http_err
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
