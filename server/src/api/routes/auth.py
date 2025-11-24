@@ -9,43 +9,29 @@ load_dotenv()
 
 router = APIRouter(prefix="/api/auth", tags=["AUTHENTICATE"])
 
-# Identifiants dans .env
+# Identifiants depuis .env
 ENV_USERNAME = os.getenv("AUTH_USERNAME")
 ENV_PASSWORD = os.getenv("AUTH_PASSWORD")
 
 
 class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
+    login: bool
 
 
-@router.post("/login")
+@router.post("/login", response_model=TokenResponse)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    """Auth simplifiée avec format standard et gestion des erreurs"""
-    try:
-        if not ENV_USERNAME or not ENV_PASSWORD:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="AUTH_USERNAME or AUTH_PASSWORD missing in .env",
-            )
+    """Vérification simple du login via OAuth2PasswordRequestForm"""
 
-        if form_data.username != ENV_USERNAME or form_data.password != ENV_PASSWORD:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Incorrect username or password",
-            )
-
-        # Retour formaté
-        return {
-            "status": 200,
-            "message": "Login successful",
-            "data": {"access_token": form_data.username, "token_type": "bearer"},
-        }
-
-    except HTTPException as http_err:
-        raise http_err
-    except Exception as e:
+    # 1. Vérifier si les variables sont dans l'environnement
+    if not ENV_USERNAME or not ENV_PASSWORD:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Unexpected error: {str(e)}",
+            detail="AUTH_USERNAME or AUTH_PASSWORD missing in .env",
         )
+
+    # 2. Vérifier les identifiants envoyés
+    if form_data.username != ENV_USERNAME or form_data.password != ENV_PASSWORD:
+        return TokenResponse(login=False)
+
+    # 3. Succès
+    return TokenResponse(login=True)
