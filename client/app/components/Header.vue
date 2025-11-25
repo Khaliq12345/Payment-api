@@ -7,7 +7,7 @@
         }"
     >
         <template #default>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 w-full justify-around">
                 <span class="font-bold text-xl">Paiement Groupe Whatsapp</span>
 
                 <UButton
