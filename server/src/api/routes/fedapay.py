@@ -33,7 +33,7 @@ def create_customer(customer: Customer):
         # Sauvegarde local DB / fichier
         add_user(customer.email, customer_data["id"], customer.phone_number)
 
-        return customer_data
+        return response
 
     except HTTPException as http_err:
         raise http_err
