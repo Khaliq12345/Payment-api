@@ -47,7 +47,7 @@ def get_chats():
 
 
 @router.post("/add")
-def add_user_to_group(groupId: str, phone: int):
+def add_user_to_group(groupId: str, phone: str):
     """
     Ajouter un utilisateur à un groupe WhatsApp
     """
