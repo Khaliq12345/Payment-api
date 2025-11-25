@@ -3,11 +3,16 @@ export default defineEventHandler(async (event) => {
 
   try {
     const body = await readBody(event)
-    
-    const response = await $fetch("/api/login", {
+
+    // Convert JSON body to FormData 
+    const formData = new FormData()
+    formData.append('username', body.username)
+    formData.append('password', body.password)
+
+    const response = await $fetch<{ login: boolean }>("/api/auth/login", {
       method: "POST",
       baseURL: config.API_URL,
-      body: body
+      body: formData
     })
 
     return response
@@ -15,7 +20,7 @@ export default defineEventHandler(async (event) => {
     console.error("Login Error:", error)
 
     const status = error.response?.status || 500
-    const message = error.response?._data?.message || "Erreur lors de la connexion"
+    const message = error.response?._data?.detail || "Erreur lors de la connexion"
 
     throw createError({
       statusCode: status,
