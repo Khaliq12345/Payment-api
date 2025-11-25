@@ -1,6 +1,8 @@
 <template>
     <Header />
-    <UContainer class="flex md:justify-center md:w-2xl w-full shadow-xl/30">
+    <UContainer
+        class="flex md:justify-center md:w-2xl w-full shadow-xl/30 mt-5"
+    >
         <!-- Loading -->
         <UProgress animation="swing" v-if="loading" />
 
@@ -46,9 +48,6 @@
 </template>
 
 <script setup lang="ts">
-
-
-
 const groups = ref([]);
 const Amountloading = ref(false);
 const loading = ref(false);
