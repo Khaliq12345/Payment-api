@@ -1,50 +1,128 @@
 <template>
-    <Header />
-    <UContainer
-        class="flex md:justify-center md:w-2xl w-full shadow-xl/30 mt-5"
-    >
-        <!-- Loading -->
-        <UProgress animation="swing" v-if="loading" />
+    <div>
+        <Header />
+        <UContainer class="py-8">
+            <!-- Page Header -->
+            <div class="mb-8">
+                <h1
+                    class="text-3xl font-bold text-gray-900 dark:text-white mb-2"
+                >
+                    Groupes WhatsApp
+                </h1>
+                <p class="text-gray-600 dark:text-gray-400">
+                    Gérez les contributions de votre groupe
+                </p>
+            </div>
 
-        <!-- List of the groups -->
-        <UPageList>
-            <UPageCard
-                v-for="(group, index) in groups"
-                :key="index"
-                variant="ghost"
-                target="_blank"
-            >
-                <!-- Group info and input section -->
-                <template #body>
-                    <UUser
-                        :name="group.name"
-                        :description="`ID: ${group.id}`"
-                        class="relative"
-                        :to="`/whatsapp/${group.id}`"
-                        :ui="{
-                            name: 'text-sm md:text-md lg:text-lg',
-                        }"
-                    />
-                    <!-- Input section -->
-                    <div class="flex-col gap-4">
-                        <div class="w-50">
-                            <UInputNumber
-                                v-model="group.amount"
-                                size="sm"
-                                @update:model-value="updateGroupAmount(group)"
-                                :format-options="{
-                                    style: 'currency',
-                                    currency: 'XOF',
-                                    currencyDisplay: 'code',
-                                    currencySign: 'accounting',
+            <!-- Loading State -->
+            <div v-if="loading" class="space-y-4">
+                <USkeleton class="h-32 w-full" v-for="i in 3" :key="i" />
+            </div>
+
+            <!-- Groups Grid -->
+            <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <UCard
+                    v-for="(group, index) in groups"
+                    :key="index"
+                    :ui="{
+                        body: { padding: 'p-6' },
+                        ring: 'ring-1 ring-gray-200 dark:ring-gray-800',
+                        rounded: 'rounded-xl',
+                    }"
+                    class="hover:shadow-lg transition-shadow duration-300"
+                >
+                    <!-- Group Header -->
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1 min-w-0">
+                            <NuxtLink
+                                :to="`/whatsapp/${group.id}`"
+                                class="group block"
+                            >
+                                <h3
+                                    class="text-lg font-semibold text-gray-900 dark:text-white truncate group-hover:text-primary-500 transition-colors"
+                                >
+                                    {{ group.name }}
+                                </h3>
+                                <p
+                                    class="text-sm text-gray-500 dark:text-gray-400 mt-1"
+                                >
+                                    ID: {{ group.id }}
+                                </p>
+                            </NuxtLink>
+                        </div>
+
+                        <!-- Group Icon/Avatar -->
+                        <div class="ml-4">
+                            <UAvatar
+                                icon="i-heroicons-user-group"
+                                size="lg"
+                                :ui="{
+                                    background:
+                                        'bg-primary-100 dark:bg-primary-900',
                                 }"
                             />
                         </div>
                     </div>
-                </template>
-            </UPageCard>
-        </UPageList>
-    </UContainer>
+
+                    <UDivider class="my-4" />
+
+                    <!-- Amount Input Section -->
+                    <div class="space-y-2">
+                        <label
+                            class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >
+                            Montant de la contribution
+                        </label>
+                        <UInputNumber
+                            v-model="group.amount"
+                            size="lg"
+                            @update:model-value="updateGroupAmount(group)"
+                            :format-options="{
+                                style: 'currency',
+                                currency: 'XOF',
+                                currencyDisplay: 'code',
+                                currencySign: 'accounting',
+                            }"
+                            :ui="{
+                                rounded: 'rounded-lg',
+                            }"
+                        />
+                    </div>
+
+                    <!-- Action Button -->
+                    <UButton
+                        @click="copyGroupUrl(group.id)"
+                        color="primary"
+                        variant="soft"
+                        block
+                        class="mt-4"
+                        trailing-icon="i-heroicons-clipboard-document"
+                    >
+                        Copier le lien
+                    </UButton>
+                </UCard>
+            </div>
+
+            <!-- Empty State -->
+            <div
+                v-if="!loading && groups.length === 0"
+                class="text-center py-12"
+            >
+                <UIcon
+                    name="i-heroicons-inbox"
+                    class="mx-auto h-12 w-12 text-gray-400"
+                />
+                <h3
+                    class="mt-4 text-lg font-semibold text-gray-900 dark:text-white"
+                >
+                    Aucun groupe trouvé
+                </h3>
+                <p class="mt-2 text-gray-500 dark:text-gray-400">
+                    Vous n'avez pas encore de groupes WhatsApp.
+                </p>
+            </div>
+        </UContainer>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -94,6 +172,17 @@ const updateGroupAmount = async (group: object) => {
         });
     } finally {
         Amountloading.value = false;
+    }
+};
+
+// copy url to clipboard
+const copyGroupUrl = async (groupId) => {
+    const url = `${window.location.origin}/whatsapp/${groupId}`;
+    try {
+        await navigator.clipboard.writeText(url);
+        toast.add({ title: "Lien copié!", color: "success" });
+    } catch (err) {
+        console.error("Failed to copy URL:", err);
     }
 };
 

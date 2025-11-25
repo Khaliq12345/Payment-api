@@ -146,7 +146,7 @@ const hasAdded = ref(false);
 const inviteLink = ref<string | null>(null);
 
 // Récupération transaction
-const status = route.query.status;
+const status = ref(route.query.status);
 const transId = route.query.id;
 const transaction = ref<Transaction>();
 
@@ -155,7 +155,7 @@ const toast = useToast();
 
 onMounted(async () => {
     // check if the transaction is approved
-    if (status !== "approved") return {};
+    if (status.value !== "approved") return {};
     loading.value = true;
     try {
         // send the requests to get the transaction info
@@ -168,6 +168,7 @@ onMounted(async () => {
 
         // extract the transaction info and display success notification
         transaction.value = response["v1/transaction"];
+        status.value = transaction.value.status;
         toast.add({
             title: "Verification de transaction reussi",
             icon: "i-lucide-check-check",
