@@ -24,7 +24,7 @@ def create_customer(customer: Customer):
             response = fedapay.create_customer(customer_dict)
 
         # Vérifier la réponse FedaPay
-        customer_data = response.get("v1", {}).get("customer")
+        customer_data = response["v1/customer"]
         if not customer_data:
             raise HTTPException(
                 status_code=500, detail="Erreur lors de la création du user"
@@ -33,11 +33,7 @@ def create_customer(customer: Customer):
         # Sauvegarde local DB / fichier
         add_user(customer.email, customer_data["id"], customer.phone_number)
 
-        return {
-            "status": 200,
-            "message": "Customer created successfully",
-            "data": customer_data,
-        }
+        return customer_data
 
     except HTTPException as http_err:
         raise http_err
@@ -62,7 +58,7 @@ def get_customer(email: str):
 
         fedapay = FedaPay()
         response = fedapay.retrieve_customer(customer_id)
-        customer_data = response.get("v1", {}).get("customer")
+        customer_data = response["v1/customer"]
 
         if not customer_data:
             raise HTTPException(
@@ -70,11 +66,7 @@ def get_customer(email: str):
                 detail="Erreur lors de la récupération du customer depuis FedaPay",
             )
 
-        return {
-            "status": 200,
-            "message": "Customer retrieved successfully",
-            "data": customer_data,
-        }
+        return customer_data
 
     except HTTPException as http_err:
         raise http_err
@@ -88,18 +80,7 @@ def create_transaction(transaction: Transaction):
         transaction_dict = jsonable_encoder(transaction)
         fedapay = FedaPay()
         response = fedapay.create_transaction(transaction_dict)
-        transaction_data = response.get("v1", {}).get("transaction")
-
-        if not transaction_data:
-            raise HTTPException(
-                status_code=500, detail="Erreur lors de la création de la transaction"
-            )
-
-        return {
-            "status": 200,
-            "message": "Transaction created successfully",
-            "data": transaction_data,
-        }
+        return response
 
     except HTTPException as http_err:
         raise http_err
@@ -112,19 +93,13 @@ def get_transaction(transactionId: str):
     try:
         fedapay = FedaPay()
         response = fedapay.get_transaction(transactionId)
-        transaction_data = response.get("v1", {}).get("transaction")
-
-        if not transaction_data:
+        if not response:
             raise HTTPException(
                 status_code=404,
                 detail=f"Transaction with ID '{transactionId}' not found",
             )
 
-        return {
-            "status": 200,
-            "message": "Transaction retrieved successfully",
-            "data": transaction_data,
-        }
+        return response
 
     except HTTPException as http_err:
         raise http_err

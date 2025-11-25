@@ -14,13 +14,7 @@ def verify_number(number: int):
     try:
         whatsapp = Whatsapp()
         is_active = whatsapp.check_whatsapp(number)
-
-        return {
-            "status": 200,
-            "message": "Number verification successful",
-            "data": {"number": number, "is_active": is_active},
-        }
-
+        return is_active
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Unexpected error while verifying number: {str(e)}"
@@ -44,7 +38,7 @@ def get_chats():
             except Exception:
                 chat["amount"] = 0  # Par défaut 0 si impossible de récupérer le montant
 
-        return {"status": 200, "message": "Chats retrieved successfully", "data": chats}
+        return chats
 
     except Exception as e:
         raise HTTPException(
@@ -60,12 +54,7 @@ def add_user_to_group(groupId: str, phone: int):
     try:
         whatsapp = Whatsapp()
         result = whatsapp.add_to_group(groupId, phone)
-
-        return {
-            "status": 200,
-            "message": "User added to group successfully",
-            "data": result,
-        }
+        return result
 
     except Exception as e:
         raise HTTPException(
@@ -82,11 +71,7 @@ def update_whatsapp_group_amount(group_id: str, amount: float | int):
     try:
         update_group_amount(group_id, amount)
 
-        return {
-            "status": 200,
-            "message": f"Amount for group '{group_id}' updated successfully",
-            "data": {"group_id": group_id, "amount": amount},
-        }
+        return {"group_id": group_id, "amount": amount}
 
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail=f"Group '{group_id}' not found")
