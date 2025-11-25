@@ -1,4 +1,5 @@
 <template>
+    <Header />
     <UContainer class="flex md:justify-center md:w-2xl w-full shadow-xl/30">
         <!-- Loading -->
         <UProgress animation="swing" v-if="loading" />
