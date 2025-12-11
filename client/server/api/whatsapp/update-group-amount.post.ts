@@ -1,17 +1,15 @@
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
-
+  const config = useRuntimeConfig(event);
   try {
-    const response = await $fetch(
-      "http://0.0.0.0:5000/api/whatsapp/update-group-amount",
-      {
-        method: "POST",
-        params: {
-          group_id: query.group_id,
-          amount: query.amount,
-        },
+    const response = await $fetch("api/whatsapp/update-group-amount", {
+      method: "POST",
+      params: {
+        group_id: query.group_id,
+        amount: query.amount,
       },
-    );
+      baseURL: config.API_URL,
+    });
 
     return response;
   } catch (error: any) {

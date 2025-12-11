@@ -6,7 +6,7 @@ import type {
 export default defineEventHandler(
   async (event): Promise<WhatsAppVerifyResponse> => {
     const query = getQuery(event) as WhatsAppVerifyQuery;
-
+    const config = useRuntimeConfig(event);
     if (!query.number) {
       throw createError({
         statusCode: 400,
@@ -15,13 +15,11 @@ export default defineEventHandler(
     }
 
     try {
-      const response: WhatsAppVerifyResponse = await $fetch(
-        "http://0.0.0.0:5000/api/whatsapp/verify",
-        {
-          method: "GET",
-          query,
-        },
-      );
+      const response: WhatsAppVerifyResponse = await $fetch({
+        method: "GET",
+        query: query.number,
+        baseURL: config.API_URL,
+      });
 
       return response;
     } catch (error: any) {

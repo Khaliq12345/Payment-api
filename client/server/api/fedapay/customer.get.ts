@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
         email: email,
       },
     });
-    console.log("Raw API response:", response);
 
     if (response.message) {
       // Erreur de l'API
