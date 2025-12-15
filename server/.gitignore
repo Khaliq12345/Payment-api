@@ -11,3 +11,6 @@ wheels/
 .env
 groups.json
 clients.json
+
+# Database
+*.db
