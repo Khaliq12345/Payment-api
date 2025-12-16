@@ -1,16 +1,19 @@
-from datetime import date
+from datetime import datetime
 
 from fastapi import APIRouter, HTTPException
 
+from src.api.dependencies import databaseDepends
 from src.schema import ProductCreate
-from src.storage.database import db
 
 
 router = APIRouter(prefix="/api/products", tags=["PRODUCTS"])
 
 
 @router.post("/add")
-def add_product(payload: ProductCreate):
+def add_product(
+    payload: ProductCreate,
+    db: databaseDepends,
+):
     try:
         product = db.add_product(
             title=payload.title,
@@ -29,11 +32,12 @@ def add_product(payload: ProductCreate):
 
 @router.get("/")
 def list_products(
+    db: databaseDepends,
     page: int = 1,
     page_size: int = 10,
     platform: str | None = None,
     name: str | None = None,
-    date_filter: date | None = None,
+    date_filter: datetime | None = None,
 ):
     try:
         products = db.get_products(
@@ -53,7 +57,10 @@ def list_products(
 
 
 @router.get("/{product_id}")
-def get_product(product_id: int):
+def get_product(
+    product_id: str,
+    db: databaseDepends,
+):
     try:
         product = db.get_product(product_id)
         if not product:
@@ -70,7 +77,10 @@ def get_product(product_id: int):
 
 
 @router.delete("/{product_id}")
-def delete_product(product_id: int):
+def delete_product(
+    product_id: str,
+    db: databaseDepends,
+):
     try:
         # Vérifier que le produit existe 
         product = db.get_product(product_id)
