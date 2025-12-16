@@ -82,7 +82,10 @@ class Database:
                 stmt = stmt.where(Product.title.contains(name))
 
             if created_date:
-                stmt = stmt.where(Product.created_at == created_date)
+                # Comparaison sur l'intervalle de la journée de created_date
+                start_dt = created_date.replace(hour=0, minute=0, second=0, microsecond=0)
+                end_dt = start_dt.replace(day=start_dt.day + 1)
+                stmt = stmt.where(Product.created_at >= start_dt, Product.created_at < end_dt)
 
             offset = (page - 1) * page_size
             stmt = stmt.offset(offset).limit(page_size)
