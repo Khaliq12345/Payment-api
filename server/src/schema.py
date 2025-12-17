@@ -23,3 +23,10 @@ class Transaction(BaseModel):
     customer_id: int
     whatsapp_number: int
     group_id: str
+
+
+class ProductCreate(BaseModel):
+    title: str
+    description: str
+    price: float
+    platform: str
