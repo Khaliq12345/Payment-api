@@ -2,10 +2,9 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event);
   const { email } = getQuery(event);
 
-  console.log(config.API_URL);
   try {
     const response = await $fetch("/api/fedapay/get-customer", {
-      baseURL: config.API_URL,
+      baseURL: config.public.apiUrl,
       method: "GET",
       params: {
         email: email,

@@ -1,29 +1,49 @@
 <template>
-    <UHeader
-        :ui="{
-            center: 'flex justify-center w-full',
-            left: 'hidden',
-            container: 'flex items-center justify-center h-full',
-        }"
-    >
-        <template #default>
-            <div class="flex items-center gap-3 w-full justify-around">
-                <span class="font-bold text-xl">Paiement Groupe Whatsapp</span>
-
+    <UHeader title="DIGI-PRODUCTS">
+        <UNavigationMenu :items="items" v-if="isAdmin()" />
+        <template #right>
+            <UColorModeButton />
+            <UTooltip text="Déconnexion" v-if="isAdmin()">
                 <UButton
-                    icon="i-heroicons-arrow-right-on-rectangle"
-                    color="error"
-                    variant="solid"
-                    @click="logout"
-                    class="ml-2"
-                >
-                </UButton>
-            </div>
+                    color="neutral"
+                    variant="ghost"
+                    icon="i-lucide-log-out"
+                    aria-label="Déconnexion"
+                    @click="logout()"
+                />
+            </UTooltip>
+        </template>
+        <template #body>
+            <UNavigationMenu
+                :items="items"
+                orientation="vertical"
+                class="-mx-2.5"
+            />
         </template>
     </UHeader>
 </template>
 
 <script setup lang="ts">
+import type { NavigationMenuItem } from "@nuxt/ui";
+const route = useRoute();
+const items = computed<NavigationMenuItem[]>(() => [
+    {
+        label: "Produits",
+        to: "/admin/products",
+        icon: "i-lucide-book-open",
+    },
+    {
+        label: "Ajouter un nouveau produit",
+        icon: "i-lucide-box",
+        to: "/admin/products/create",
+    },
+]);
+const isAdmin = () => {
+    if (route.path.includes("/admin")) {
+        return true;
+    }
+    return false;
+};
 const logout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("expired_at");

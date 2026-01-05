@@ -6,34 +6,26 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: "Données manquantes" });
 
   const externalPayload = {
-    first_name: body.first_name,
-    last_name: body.last_name,
+    first_name: body.firstName,
+    last_name: body.lastName,
     email: body.email,
-    phone_number: body.whatsapp_number,
+    phone: body.phone,
+    whatsapp_phone: body.whatsappPhone,
     country: body.country,
+    product_id: body.productId,
   };
-
   try {
-    const response = await $fetch<any>("/api/fedapay/create-customer", {
+    const response = await $fetch<any>(event.path, {
       method: "POST",
-      body: externalPayload,
-      baseURL: config.API_URL,
+      body: JSON.stringify(externalPayload),
+      headers: {
+        accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      baseURL: config.public.apiUrl,
     });
     console.log("Raw API response:", response);
-
-    if (response.message) {
-      // Erreur de l'API
-      throw createError({ statusCode: 400, statusMessage: response.message });
-    }
-
-    if (!response["v1/customer"]) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: "Réponse API invalide",
-      });
-    }
-
-    return response["v1/customer"];
+    return response;
   } catch (error: any) {
     let errorMessage = "Erreur lors de la création du client";
     const status = error.response?.status || 500;

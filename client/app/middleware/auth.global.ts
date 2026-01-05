@@ -26,7 +26,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   // Si l'utilisateur est déjà connecté et tente d'accéder à la page de connexion
   if (path === "/login") {
     if (isAuthenticated) {
-      return navigateTo("/admin/groups");
+      return navigateTo("/admin/products");
     }
     return;
   }

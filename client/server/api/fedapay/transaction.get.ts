@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch("api/fedapay/transaction", {
       method: "GET",
       query: { transactionId },
-      baseURL: config.API_URL,
+      baseURL: config.public.apiUrl,
     });
     return response;
   } catch (error) {

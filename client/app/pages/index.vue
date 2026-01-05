@@ -1,7 +1,5 @@
-<template>
-    <div class="text-h3">HELLO WORLD</div>
-</template>
+<template></template>
 
 <script setup lang="ts">
-navigateTo("/admin/groups");
+navigateTo("/admin/products");
 </script>

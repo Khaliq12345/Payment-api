@@ -1,5 +1,5 @@
 <template>
-    <UCard class="max-w-xl mx-auto border-2 border-primary-500/20 shadow-lg">
+    <UCard class="border-2 border-primary-500/20 shadow-lg">
         <template #header>
             <div class="flex justify-between items-center">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white">
@@ -90,38 +90,36 @@
 import type { CreatedCustomer } from "~/types/fedapay";
 
 const props = defineProps<{
-    customer: CreatedCustomer;
-    whatsappNumber: string;
-    groupId: string;
+    customer: object;
 }>();
 
 const toast = useToast();
 const isTransactionLoading = ref(false);
 const paymentLink = ref<string | null>(null);
 
+const route = useRoute();
+const config = useRuntimeConfig(event);
+
+console.log("TRANSACTION -", route.params, props.customer);
+
 // Fonction pour générer le lien de paiement
 const generateLink = async () => {
     isTransactionLoading.value = true;
     paymentLink.value = null;
+    console.log(props.customer.id, route.params.productId);
 
     try {
-        const payload = {
-            description: `Paiment du Groupe ${props.groupId}`,
-            amount: 1000,
-            currency: "XOF",
-            callback_url: window.location.origin + "/callback",
-            customer_id: props.customer.id,
-            whatsapp_number: props.whatsappNumber,
-            group_id: props.groupId,
-        };
-
         const response = await $fetch<any>("/api/fedapay/transaction", {
             method: "POST",
-            body: payload,
+            query: {
+                customer_id: props.customer.id,
+                product_id: route.params.productId,
+                callback_url: `${config.public.FRONTEND_URL}/callback`,
+            },
         });
 
         // Récupération du lien de paiement depuis la réponse
-        paymentLink.value = response.transaction_link || response;
+        paymentLink.value = response;
 
         toast.add({
             title: "Lien généré",

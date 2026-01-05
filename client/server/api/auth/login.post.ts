@@ -9,10 +9,9 @@ export default defineEventHandler(async (event) => {
     formData.append("username", body.username);
     formData.append("password", body.password);
 
-    console.log(config.API_URL);
     const response = await $fetch<{ login: boolean }>("/api/auth/login", {
       method: "POST",
-      baseURL: config.API_URL,
+      baseURL: config.public.apiUrl,
       body: formData,
     });
 

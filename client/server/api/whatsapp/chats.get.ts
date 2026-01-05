@@ -1,15 +1,10 @@
-import type { WhatsAppChatsResponse } from "../../../app/types/whatsapp";
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event);
   try {
-    const response: WhatsAppChatsResponse = await $fetch(
-      "/api/whatsapp/chats",
-      {
-        method: "GET",
-        baseURL: config.API_URL,
-      },
-    );
+    const response = await $fetch(event.path, {
+      method: "GET",
+      baseURL: config.public.apiUrl,
+    });
 
     return response;
   } catch (error: any) {

@@ -1,28 +1,19 @@
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
   const config = useRuntimeConfig(event);
+  const query = getQuery(event);
 
   try {
     const response: any = await $fetch("/api/fedapay/transaction", {
       method: "POST",
-      body: body,
-      baseURL: config.API_URL,
+      query: {
+        customer_id: query.customer_id,
+        product_id: query.product_id,
+        callback_url: query.callback_url,
+      },
+      baseURL: config.public.apiUrl,
     });
 
-    const link =
-      response.transaction_link || response["v1/transaction"]?.payment_url;
-
-    if (!link) {
-      console.error("Structure reçue invalide:", response);
-      throw createError({
-        statusCode: 500,
-        statusMessage: "Lien de transaction introuvable dans la réponse",
-      });
-    }
-
-    return {
-      transaction_link: link,
-    };
+    return response.payment_link;
   } catch (error: any) {
     console.error("Transaction API Error:", error);
     throw createError({
