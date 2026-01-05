@@ -36,4 +36,5 @@ class Whatsapp:
             "participantChatId": f"{phone}@c.us",
         }
         response = httpx.post(url, json=payload, headers=self.headers)
+        response.raise_for_status()
         return response.json()

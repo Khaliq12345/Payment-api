@@ -4,6 +4,7 @@ from src.api.routes.auth import router as auth_router
 from src.api.routes.fedapay import router as fedapay_router
 from src.api.routes.products import router as products_router
 from src.api.routes.whatsapp import router as whatsapp_router
+from src.api.routes.email import router as email_router
 
 app = FastAPI()
 
@@ -11,3 +12,4 @@ app.include_router(whatsapp_router)
 app.include_router(fedapay_router)
 app.include_router(auth_router)
 app.include_router(products_router)
+app.include_router(email_router)

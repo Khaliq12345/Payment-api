@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException
 
+from src.api.dependencies import fedapayDepends
 from src.services.whatsapp import Whatsapp
-from src.utils.utils import get_group_amount, update_group_amount
+from src.utils.utils import get_group_amount
 
 router = APIRouter(prefix="/api/whatsapp", tags=["WHATSAPP"])
 
@@ -47,37 +48,25 @@ def get_chats():
 
 
 @router.post("/add")
-def add_user_to_group(groupId: str, phone: str):
+def add_user_to_group(fedapayDepends: fedapayDepends, transaction_id: int):
     """
     Ajouter un utilisateur à un groupe WhatsApp
     """
     try:
         whatsapp = Whatsapp()
-        result = whatsapp.add_to_group(groupId, phone)
+        transaction = fedapayDepends.get_transaction(transactionId=transaction_id)
+        if not transaction.group_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Error groupid is missing",
+            )
+        result = whatsapp.add_to_group(
+            groupId=transaction.group_id, phone=transaction.whatsapp_phone
+        )
         return result
 
     except Exception as e:
         raise HTTPException(
             status_code=500,
             detail=f"Unexpected error while adding user to group: {str(e)}",
-        )
-
-
-@router.post("/update-group-amount")
-def update_whatsapp_group_amount(group_id: str, amount: float | int):
-    """
-    Met à jour le montant d’un groupe WhatsApp
-    """
-    try:
-        update_group_amount(group_id, amount)
-
-        return {"group_id": group_id, "amount": amount}
-
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail=f"Group '{group_id}' not found")
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Unexpected error while updating group amount: {str(e)}",
         )

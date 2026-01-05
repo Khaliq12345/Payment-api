@@ -14,3 +14,4 @@ clients.json
 
 # Database
 *.db
+cred.json

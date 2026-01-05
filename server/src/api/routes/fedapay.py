@@ -1,40 +1,30 @@
 from fastapi import APIRouter, HTTPException
-from fastapi.encoders import jsonable_encoder
 
+from src.api.dependencies import databaseDepends
 from src.schema import Customer, Transaction
 from src.services.fedapay import FedaPay
-from src.utils.utils import add_user, get_user
+from src.utils.utils import get_user
 
 router = APIRouter(prefix="/api/fedapay", tags=["FEDAPAY"])
 
 
 @router.post("/create-customer")
-def create_customer(customer: Customer):
+def create_customer(db: databaseDepends, customer: Customer):
     try:
-        customer_dict = jsonable_encoder(customer)
         fedapay = FedaPay()
-
         # Vérifier si user existe déjà
-        customer_info = get_user(customer.email)
-        customer_id = customer_info.get("user_id") if customer_info else None
-
-        if customer_id:
-            response = fedapay.retrieve_customer(customer_id)
-        else:
-            response = fedapay.create_customer(customer_dict)
-
-        # Vérifier la réponse FedaPay
-        customer_data = response["v1/customer"]
-        if not customer_data:
-            raise HTTPException(
-                status_code=500, detail="Erreur lors de la création du user"
+        user_exists = db.verify_if_customer_in_db(customer.email, customer.product_id)
+        if user_exists:
+            customer_info = db.retrieve_customer(
+                product_id=customer.product_id, email=customer.email
             )
-
-        # Sauvegarde local DB / fichier
-        add_user(customer.email, customer_data["id"], customer.phone_number)
-
+            if not customer_info:
+                raise HTTPException(status_code=404, detail="Client non trouvee")
+            response = fedapay.retrieve_customer(customer_info.fedapay_id)
+        else:
+            response = fedapay.create_customer(customer)
+            db.add_customer(customer, response["id"], customer.product_id)
         return response
-
     except HTTPException as http_err:
         raise http_err
     except Exception as e:
@@ -75,12 +65,19 @@ def get_customer(email: str):
 
 
 @router.post("/transaction")
-def create_transaction(transaction: Transaction):
+def create_transaction(customer_id: str, product_id: str, callback_url: str) -> dict:
+    """Create a new transaction and retrieve it's url"""
     try:
-        transaction_dict = jsonable_encoder(transaction)
+        print(customer_id, product_id, callback_url)
         fedapay = FedaPay()
-        response = fedapay.create_transaction(transaction_dict)
-        return response
+        response = fedapay.create_transaction(
+            customer_id=customer_id, product_id=product_id, callback_url=callback_url
+        )
+        if not response:
+            raise HTTPException(
+                status_code=404, detail="Customer or Product not available"
+            )
+        return {"payment_link": response}
 
     except HTTPException as http_err:
         raise http_err
@@ -89,7 +86,7 @@ def create_transaction(transaction: Transaction):
 
 
 @router.get("/transaction")
-def get_transaction(transactionId: str):
+def get_transaction(transactionId: str) -> Transaction:
     try:
         fedapay = FedaPay()
         response = fedapay.get_transaction(transactionId)

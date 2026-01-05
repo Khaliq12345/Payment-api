@@ -16,4 +16,9 @@ dependencies = [
     "dateparser>=1.2.0",
     "dotenv>=0.9.9",
     "unicorn>=2.1.4",
+    "pydrive2>=1.21.3",
+    "google>=3.0.0",
+    "google-api-python-client>=2.187.0",
+    "google-auth-httplib2>=0.3.0",
+    "google-auth-oauthlib>=1.2.3",
 ]
