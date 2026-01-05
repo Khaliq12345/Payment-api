@@ -1,11 +1,13 @@
+import process from "node:process";
+
 export default defineNuxtConfig({
   modules: ["@nuxt/ui"],
   css: ["~/assets/css/main.css"],
   runtimeConfig: {
     public: {
-      FRONTEND_URL: "http://localhost:3000",
-      apiUrl: "http://0.0.0.0:7000",
-      emailService: "",
+      FRONTEND_URL: process.env.NUXT_PUBLIC_FRONTEND_URL,
+      apiUrl: process.env.NUXT_PUBLIC_API_URL,
+      emailService: process.env.NUXT_PUBLIC_EMAIL_SERVICE,
     },
   },
 });
