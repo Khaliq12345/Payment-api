@@ -158,9 +158,12 @@ const schema = v.pipeAsync(
                 const isValide = phoneRegex.test(input);
                 if (!isValide) {
                     return false;
+                } else {
+                    return true;
                 }
-                const isVerified = await verifyNumber(input);
-                return isVerified;
+                // const isVerified = await verifyNumber(input);
+                // console.log(`isVerified - ${isVerified}`);
+                // return isVerified;
             }, "Numéro n'est pas sur whatsapp"),
         ),
         confirm_whatsapp_number: v.string("La confirmation est requise"),
