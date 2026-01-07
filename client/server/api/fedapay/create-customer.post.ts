@@ -27,7 +27,8 @@ export default defineEventHandler(async (event) => {
     console.log("Raw API response:", response);
     return response;
   } catch (error: any) {
-    let errorMessage = "Erreur lors de la création du client";
+    let errorMessage =
+      "Erreur lors de la création du client; verifiez votre address email";
     const status = error.response?.status || 500;
 
     // Extraction propre du message d'erreur Swagger (422)
