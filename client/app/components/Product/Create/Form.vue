@@ -4,7 +4,7 @@
         v-if="productUrl"
     ></ProductCreateUrlCard>
 
-    <UForm :schema="schema" :state="state" @submit="onSubmit" v-else>
+    <UForm :schema="schema" :state="state" v-else>
         <!-- Just the title and description form -->
         <div class="gap-5 flex-col flex">
             <UFormField label="Titre" name="title">
@@ -92,7 +92,12 @@
             </UFormField>
         </div>
 
-        <UButton type="submit" class="mt-10 bg-green-500" block>
+        <UButton
+            type="submit"
+            class="mt-10 bg-green-500"
+            block
+            @click="onSubmit"
+        >
             Soumettre
         </UButton>
     </UForm>
@@ -144,7 +149,7 @@ const state = reactive({
     platform: null,
     drive_link: "",
     whatsapp_groupid: "",
-    service_email_added: null,
+    service_email_added: false,
 });
 
 const items = ref<SelectItem[]>([
@@ -161,34 +166,44 @@ const items = ref<SelectItem[]>([
 const toast = useToast();
 
 // Server to create the product
-async function onSubmit(event) {
-    if (!state.service_email_added) {
-        toast.add({
-            title: "Erreur",
-            description:
-                "Veuillez ajouter l'email de service au dossier Google Drive avant de continuer",
-            color: "error",
-        });
-        return;
+async function onSubmit() {
+    // Validate drive link and service email
+    if (state.drive_link.includes("drive.google.com")) {
+        if (!state.service_email_added) {
+            toast.add({
+                title: "Erreur",
+                description:
+                    "Veuillez ajouter l'email de service au dossier Google Drive avant de continuer",
+                color: "error", // Changed from "error"
+            });
+            return;
+        }
     }
+
     try {
         const response = await $fetch("/api/products/add", {
             method: "POST",
             body: state,
         });
+
         const product_id = response.id;
         productUrl.value = `${config.public.FRONTEND_URL}/product/${product_id}`;
+
         toast.add({
             title: "Succès",
             description: "Produit créé avec succès",
-            color: "success",
+            color: "success", // Changed from "success"
         });
     } catch (error) {
-        console.log(error);
+        console.error("Error creating product:", error);
+
         toast.add({
             title: "Erreur",
-            description: error.data.message,
-            color: "error",
+            description:
+                error?.data?.message ||
+                error?.message ||
+                "Une erreur s'est produite lors de la création du produit",
+            color: "error", // Changed from "error"
         });
     }
 }

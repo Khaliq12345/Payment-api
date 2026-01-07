@@ -28,6 +28,7 @@ def create_customer(db: databaseDepends, customer: Customer):
     except HTTPException as http_err:
         raise http_err
     except Exception as e:
+        print(str(e))
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 

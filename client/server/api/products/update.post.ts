@@ -2,7 +2,6 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event);
   const query = getQuery(event);
   const body = await readBody(event);
-  console.log(body, query.product_id, event.path);
 
   try {
     const response = await $fetch(event.path, {

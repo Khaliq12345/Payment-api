@@ -1,3 +1,5 @@
+from hmac import trans_5C
+
 from fastapi import APIRouter, HTTPException
 
 from src.api.dependencies import emailDepends, fedapayDepends, googleDepends
@@ -17,13 +19,15 @@ def send_email(
     """
     try:
         transaction = fedapayDepends.get_transaction(transactionId=transaction_id)
+        print(transaction)
         if not transaction.drive_link:
             raise HTTPException(status_code=404, detail="No material provided")
-        if "calender.app.google" in transaction.drive_link:
+        if "calendar.app.google" in transaction.drive_link:
             send_type = "meeting"
         elif "drive.google.com" in transaction.drive_link:
             send_type = "document"
         else:
+            print(transaction.drive_link)
             raise HTTPException(
                 status_code=404, detail="No valid material provided; contact the owner"
             )

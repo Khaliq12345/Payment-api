@@ -15,7 +15,7 @@
                     size="xs"
                     color="gray"
                     variant="ghost"
-                    @click="copyUrl"
+                    @click="handleCopy"
                     :ui="{ rounded: 'rounded-md' }"
                 />
             </div>
@@ -24,18 +24,13 @@
 </template>
 
 <script setup lang="ts">
-const toast = useToast();
-
 const props = defineProps<{
     url: string;
 }>();
 
-const copyUrl = async () => {
-    try {
-        await navigator.clipboard.writeText(props.url);
-        toast.add({ title: "URL copied to clipboard!", color: "success" });
-    } catch (err) {
-        toast.add({ title: "URL copied to clipboard!", color: "error" });
-    }
+const { copyToClipboard } = useClipboard();
+
+const handleCopy = () => {
+    copyToClipboard(props.url);
 };
 </script>

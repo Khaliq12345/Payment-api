@@ -14,7 +14,7 @@
                     variant="ghost"
                     icon="i-lucide-copy"
                     size="xs"
-                    @click.stop.prevent="copyToClipboard()"
+                    @click.stop.prevent="handleCopy()"
                 />
             </template>
         </UInput>
@@ -25,22 +25,27 @@
 const props = defineProps<{
     productId: string;
 }>();
+const { copyToClipboard } = useClipboard();
 const config = useRuntimeConfig();
 const text = `${config.public.FRONTEND_URL}/product/${props.productId}`;
 
-const toast = useToast();
-const copyToClipboard = async () => {
-    try {
-        await navigator.clipboard.writeText(text);
-        // Optional: Show a success notification
-        toast.add({
-            title: "Lien copié !",
-            icon: "i-lucide-check-circle",
-            color: "green",
-            timeout: 2000,
-        });
-    } catch (err) {
-        console.error("Échec de la copie : ", err);
-    }
+const handleCopy = () => {
+    copyToClipboard(text);
 };
+
+// const toast = useToast();
+// const copyToClipboard = async () => {
+//     try {
+//         await navigator.clipboard.writeText(text);
+//         // Optional: Show a success notification
+//         toast.add({
+//             title: "Lien copié !",
+//             icon: "i-lucide-check-circle",
+//             color: "green",
+//             timeout: 2000,
+//         });
+//     } catch (err) {
+//         console.error("Échec de la copie : ", err);
+//     }
+// };
 </script>
