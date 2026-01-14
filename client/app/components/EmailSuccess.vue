@@ -19,7 +19,8 @@
                     block
                     class="text-xl font-bold py-6"
                 >
-                    Go to the folder / Go to the meeting page to book your place
+                    Accéder au dossier dans votre / Accéder à la page de réunion
+                    pour réserver votre place
                 </UButton>
             </template>
         </UCard>
