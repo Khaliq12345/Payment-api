@@ -9,7 +9,7 @@ load_dotenv()
 class Whatsapp:
     def __init__(self) -> None:
         self.whatsappInstance = os.getenv("WhatsappInstance")
-        self.url = "https://7107.api.green-api.com"
+        self.url = os.getenv("WHATSAPP_URL")
         self.token = os.getenv("WHATSAPP_TOKEN")
         self.headers = {
             "Content-Type": "application/json",
