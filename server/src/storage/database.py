@@ -8,6 +8,13 @@ from typing import Optional
 from dateparser import parse, parser
 from sqlmodel import Session, SQLModel, create_engine, or_, select
 
+from src.config import (
+    DATABASE_HOST,
+    DATABASE_NAME,
+    DATABASE_PASSWORD,
+    DATABASE_PORT,
+    DATABASE_USERNAME,
+)
 from src.model import Customer, Product
 from src.schema import Customer as CustomerSchema
 from src.schema import ProductCreate
@@ -21,8 +28,9 @@ class Database:
         # Base de données SQLite stockée dans server/src/storage/app.db
         storage_dir = Path(__file__).resolve().parent
         db_path = storage_dir / "app.db"
-        db_url = f"sqlite:///{db_path}"
-        self.engine = create_engine(db_url)
+        dev_db_url = f"sqlite:///{db_path}"
+        prod_db_url = f"postgresql://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}"
+        self.engine = create_engine(prod_db_url)
 
         # Création automatique de la base et des tables au démarrage
         self.create_database()
