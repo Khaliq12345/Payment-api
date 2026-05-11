@@ -24,7 +24,7 @@ class Whatsapp:
             headers=self.headers,
         )
         output = response.json()
-        return {"valid": output.get("numberExists")}
+        return {"existsWhatsapp": output.get("numberExists")}
 
     def get_chats(self) -> list[dict]:
         """Get all whatsapp groups"""
@@ -37,7 +37,7 @@ class Whatsapp:
 
     def add_to_group(self, groupId: str, phone: str):
         """Add user to group"""
-        url = f"{self.url}/api/default/groups/{groupId}/participants/add"
+        url = f"{self.url}/api/default/groups/{groupId}%40g.us/participants/add"
         json_data = {
             "participants": [
                 {
