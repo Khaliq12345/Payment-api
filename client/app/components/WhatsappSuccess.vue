@@ -74,7 +74,7 @@ const addToWhatsappGroup = async () => {
         });
 
         // check if user is added and display success notification
-        if (response.addParticipant === true) {
+        if (response.code === 200) {
             hasAdded.value = true;
             inviteLink.value = `https://chat.whatsapp.com/${props.transaction.group_id}`;
             toast.add({
@@ -82,7 +82,7 @@ const addToWhatsappGroup = async () => {
                 icon: "i-lucide-badge-check",
                 color: "success",
             });
-        } else {
+        } else if (response.Error === 409) {
             // display warning notification if user is not added
             toast.add({
                 title: "Vous êtes déjà dans le groupe ou l'ajout a échoué.",

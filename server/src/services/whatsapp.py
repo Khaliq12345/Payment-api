@@ -1,4 +1,5 @@
 import os
+from math import e
 
 import httpx
 from dotenv import load_dotenv
@@ -37,7 +38,9 @@ class Whatsapp:
 
     def add_to_group(self, groupId: str, phone: str):
         """Add user to group"""
+        print(groupId, phone)
         url = f"{self.url}/api/default/groups/{groupId}%40g.us/participants/add"
+        print(url)
         json_data = {
             "participants": [
                 {
@@ -45,6 +48,16 @@ class Whatsapp:
                 },
             ],
         }
-        response = httpx.post(url, json=json_data, headers=self.headers)
-        response.raise_for_status()
-        return response.json()
+
+        try:
+            print(json_data)
+            response = httpx.post(url, json=json_data, headers=self.headers)
+            print(response)
+            return response.json()
+        except httpx.HTTPStatusError as e:
+            # THIS IS THE KEY: It prints the actual error message from the WAHA server
+            print(f"!!! SERVER ERROR (500): {e.response.text}")
+            return {"error": True, "details": e.response.text}
+        except Exception as e:
+            print(f"!!! REQUEST FAILED: {e}")
+            return None

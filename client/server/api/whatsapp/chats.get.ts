@@ -5,7 +5,6 @@ export default defineEventHandler(async (event) => {
       method: "GET",
       baseURL: config.public.apiUrl,
     });
-
     return response;
   } catch (error: any) {
     console.error("WhatsApp Chats Error:", error);
