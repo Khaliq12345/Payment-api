@@ -39,21 +39,17 @@ class Whatsapp:
     def add_to_group(self, groupId: str, phone: str):
         """Add user to group"""
         print(groupId, phone)
-        url = f"{self.url}/api/default/groups/{groupId}%40g.us/participants/add"
-        print(url)
-        json_data = {
-            "participants": [
-                {
-                    "id": f"{phone}@c.us",
-                },
-            ],
-        }
-
+        url = f"{self.url}/api/default/groups/{groupId}%40g.us/invite-code"
+        # json_data = {
+        #     "participants": [
+        #         {
+        #             "id": f"{phone}@c.us",
+        #         },
+        #     ],
+        # }
         try:
-            print(json_data)
-            response = httpx.post(url, json=json_data, headers=self.headers)
-            print(response)
-            return response.json()
+            response = httpx.get(url, headers=self.headers)
+            return response.text
         except httpx.HTTPStatusError as e:
             # THIS IS THE KEY: It prints the actual error message from the WAHA server
             print(f"!!! SERVER ERROR (500): {e.response.text}")
