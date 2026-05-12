@@ -23,10 +23,12 @@ onMounted(async () => {
     const response = await $fetch("/api/whatsapp/chats", {
         method: "GET",
     });
+
     response.forEach((chat) => {
+        if (!chat.notSpam) return;
         chats.value.push({
             label: chat.name,
-            value: chat.id.user,
+            value: chat.id,
         });
     });
 });
