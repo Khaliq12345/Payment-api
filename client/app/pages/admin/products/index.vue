@@ -5,7 +5,7 @@
 
         <UPageBody>
             <!-- Filters for the products -->
-            <UPageCard class="m-2 dark: bg-green-700 light:bg-green-50">
+            <UPageCard class="m-2">
                 <div class="flex flex-col gap-4">
                     <UTextarea
                         icon="i-lucide-search"

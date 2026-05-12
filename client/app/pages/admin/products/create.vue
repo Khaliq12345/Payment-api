@@ -6,7 +6,7 @@
 
             <!-- Product form -->
             <UPageBody>
-                <UPageCard class="border-2 border-green-100 m-2">
+                <UPageCard class="border-2 m-2">
                     <ProductCreateForm :chats="chats"></ProductCreateForm>
                 </UPageCard>
             </UPageBody>

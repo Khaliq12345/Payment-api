@@ -10,4 +10,9 @@ export default defineNuxtConfig({
       emailService: process.env.NUXT_PUBLIC_EMAIL_SERVICE,
     },
   },
+  ui: {
+    theme: {
+      colors: ["primary", "neutral"],
+    },
+  },
 });

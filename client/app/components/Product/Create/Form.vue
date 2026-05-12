@@ -79,7 +79,7 @@
                 label="Lien du groupe WhatsApp"
                 description="Collez le lien vers le groupe WhatsApp"
             >
-                <USelect
+                <USelectMenu
                     class="w-full"
                     :search-input="{
                         placeholder: 'Filtrer...',
@@ -88,16 +88,13 @@
                     v-model="state.whatsapp_groupid"
                     :items="chats"
                     placeholder="Sélectionnez un groupe WhatsApp"
+                    :virtualize="true"
+                    valueKey="value"
                 />
             </UFormField>
         </div>
 
-        <UButton
-            type="submit"
-            class="mt-10 bg-green-500"
-            block
-            @click="onSubmit"
-        >
+        <UButton type="submit" class="mt-10" block @click="onSubmit">
             Soumettre
         </UButton>
     </UForm>
