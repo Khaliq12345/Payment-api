@@ -1,5 +1,4 @@
 import os
-from math import e
 
 import httpx
 from dotenv import load_dotenv
@@ -14,46 +13,28 @@ class Whatsapp:
         self.token = os.getenv("WHATSAPP_TOKEN")
         self.headers = {
             "Content-Type": "application/json",
-            "accept": "application/json",
-            "X-Api-Key": self.token,
         }
 
     def check_whatsapp(self, number: int) -> dict:
         """verify if a whatsapp number is available"""
-        response = httpx.get(
-            f"{self.url}/api/contacts/check-exists?phone={number}&session=default",
-            headers=self.headers,
-        )
-        output = response.json()
-        return {"existsWhatsapp": output.get("numberExists")}
+        url = f"{self.url}/{self.whatsappInstance}/checkWhatsapp/{self.token}"
+        payload = {"phoneNumber": number}
+        response = httpx.post(url, json=payload)
+        return response.json()
 
     def get_chats(self) -> list[dict]:
-        """Get all whatsapp groups"""
-        params = {
-            "exclude": "participants",
-        }
-        url = f"{self.url}/api/default/groups"
-        response = httpx.get(url, params=params, headers=self.headers)
+        """Get all whatsapp chat"""
+        url = f"{self.url}/{self.whatsappInstance}/getChats/{self.token}"
+        response = httpx.get(url)
         return response.json()
 
     def add_to_group(self, groupId: str, phone: str):
         """Add user to group"""
-        print(groupId, phone)
-        url = f"{self.url}/api/default/groups/{groupId}%40g.us/invite-code"
-        # json_data = {
-        #     "participants": [
-        #         {
-        #             "id": f"{phone}@c.us",
-        #         },
-        #     ],
-        # }
-        try:
-            response = httpx.get(url, headers=self.headers)
-            return response.text
-        except httpx.HTTPStatusError as e:
-            # THIS IS THE KEY: It prints the actual error message from the WAHA server
-            print(f"!!! SERVER ERROR (500): {e.response.text}")
-            return {"error": True, "details": e.response.text}
-        except Exception as e:
-            print(f"!!! REQUEST FAILED: {e}")
-            return None
+        url = f"{self.url}/{self.whatsappInstance}/addGroupParticipant/{self.token}"
+        payload = {
+            "groupId": groupId,
+            "participantChatId": f"{phone}@c.us",
+        }
+        response = httpx.post(url, json=payload, headers=self.headers)
+        response.raise_for_status()
+        return response.json()

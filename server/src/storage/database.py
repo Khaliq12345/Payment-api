@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional
 
 from dateparser import parse, parser
-from sqlmodel import Session, SQLModel, create_engine, or_, select
+from sqlmodel import Session, SQLModel, create_engine, delete, or_, select
 
 from src.config import (
     DATABASE_HOST,
@@ -113,12 +113,11 @@ class Database:
             return session.exec(stmt).first()
 
     def delete_product(self, product_id: str) -> None:
-        """
-        Supprime un produit par son id.
-        """
         with Session(self.engine) as session:
             product = session.get(Product, product_id)
             if product:
+                # Delete all customers linked to this product
+                session.exec(delete(Customer).where(Customer.product_id == product_id))
                 session.delete(product)
                 session.commit()
 
