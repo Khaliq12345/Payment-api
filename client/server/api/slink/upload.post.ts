@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
     if (duplicate) {
       const imageId = duplicate.data.imageId;
       return {
-        url: `${config.slinkUrl}/api/image/${imageId}.jpg`,
+        url: `https://digiproduct.tech2work.tech/image/${imageId}.jpg`,
         id: imageId,
       };
     }
@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
 
   const result = await response.json();
   return {
-    url: `${config.slinkUrl}/api/image/${result.id}.jpg`,
+    url: `https://digiproduct.tech2work.tech/image/${result.id}.jpg`,
     id: result.id,
   };
 });
