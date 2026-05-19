@@ -55,3 +55,4 @@ class ProductCreate(BaseModel):
     platform: Platform
     drive_link: str | None = None
     whatsapp_groupid: str | None = None
+    media_url: str | None = None

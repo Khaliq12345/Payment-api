@@ -61,6 +61,7 @@ class Database:
                 platform=product_info.platform.value,
                 drive_link=product_info.drive_link,
                 whatsapp_groupid=product_info.whatsapp_groupid,
+                media_url=product_info.media_url,
             )
             session.add(product)
             session.commit()

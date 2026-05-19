@@ -14,6 +14,7 @@ class Product(SQLModel, table=True):
     drive_link: Optional[str]
     whatsapp_groupid: Optional[str]
     created_at: datetime
+    media_url: Optional[str]
 
 
 class Customer(SQLModel, table=True):

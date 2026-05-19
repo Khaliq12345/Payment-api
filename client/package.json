@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@nuxt/ui": "^4.2.1",
+    "form-data": "^4.0.5",
     "nuxt": "^4.2.1",
     "tailwindcss": "^4.1.13",
     "valibot": "^1.1.0",

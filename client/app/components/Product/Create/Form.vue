@@ -22,6 +22,15 @@
                     v-model="state.description"
                 />
             </UFormField>
+
+            <UFormField label="Image" name="image">
+                <p>{{ inputMedia }}</p>
+                <UFileUpload
+                    v-model="inputMedia"
+                    class="w-96 min-h-48"
+                    accept="image/*"
+                />
+            </UFormField>
         </div>
 
         <USeparator label="Détails" class="my-8" />
@@ -114,6 +123,7 @@ console.log(config);
 EMAIL_SERVICE = config.public.emailService;
 const productUrl = ref();
 const chat = ref();
+const inputMedia = ref();
 
 // # Setup the form validator schema
 const schema = v.object({
@@ -147,6 +157,7 @@ const state = reactive({
     drive_link: "",
     whatsapp_groupid: "",
     service_email_added: false,
+    media_url: null,
 });
 
 const items = ref<SelectItem[]>([
@@ -178,6 +189,18 @@ async function onSubmit() {
     }
 
     try {
+        // 1. Upload image to Slink first (if an image was selected)
+        if (inputMedia.value) {
+            const formData = new FormData();
+            formData.append("image", inputMedia.value);
+
+            const slinkResponse = await $fetch("/api/slink/upload", {
+                method: "POST",
+                body: formData,
+            });
+            state.media_url = slinkResponse.url;
+        }
+
         const response = await $fetch("/api/products/add", {
             method: "POST",
             body: state,

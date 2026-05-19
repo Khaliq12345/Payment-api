@@ -6,7 +6,6 @@ export default defineEventHandler(async (event) => {
       method: "GET",
       baseURL: config.public.apiUrl,
     });
-
     return response;
   } catch (error: any) {
     const status = error.response?.status || 500;
