@@ -25,7 +25,6 @@ onMounted(async () => {
     });
 
     response.forEach((chat) => {
-        if (!chat.notSpam) return;
         chats.value.push({
             label: chat.name,
             value: chat.id,
