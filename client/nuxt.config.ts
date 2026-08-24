@@ -3,6 +3,14 @@ import process from "node:process";
 export default defineNuxtConfig({
   modules: ["@nuxt/ui"],
   css: ["~/assets/css/main.css"],
+  vite: {
+    optimizeDeps: {
+      include: [
+        'reka-ui',
+        'reka-ui/namespaced'
+      ]
+    }
+  },
   runtimeConfig: {
     slinkUrl: process.env.SLINK_URL,
     slinkApiKey: process.env.SLINK_API_KEY,
