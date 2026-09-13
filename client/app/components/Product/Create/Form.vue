@@ -1,35 +1,19 @@
 <template>
-    <ProductCreateUrlCard
-        :url="productUrl"
-        v-if="productUrl"
-    ></ProductCreateUrlCard>
+    <ProductCreateUrlCard :url="productUrl" v-if="productUrl"></ProductCreateUrlCard>
 
     <UForm :schema="schema" :state="state" v-else>
         <!-- Just the title and description form -->
         <div class="gap-5 flex-col flex">
             <UFormField label="Titre" name="title">
-                <UInput
-                    placeholder="Entrez le titre du produit"
-                    class="w-full"
-                    v-model="state.title"
-                />
+                <UInput placeholder="Entrez le titre du produit" class="w-full" v-model="state.title" />
             </UFormField>
 
             <UFormField label="Description" name="description">
-                <UTextarea
-                    placeholder="Entrez la description du produit"
-                    class="w-full"
-                    v-model="state.description"
-                />
+                <UTextarea placeholder="Entrez la description du produit" class="w-full" v-model="state.description" />
             </UFormField>
 
             <UFormField label="Image" name="image">
-                <p>{{ inputMedia }}</p>
-                <UFileUpload
-                    v-model="inputMedia"
-                    class="w-96 min-h-48"
-                    accept="image/*"
-                />
+                <UFileUpload v-model="inputMedia" class="w-96 min-h-48" accept="image/*" />
             </UFormField>
         </div>
 
@@ -38,72 +22,39 @@
         <!-- Other details like price and platform -->
         <div class="grid grid-cols-1 md:grid-cols-2 w-full gap-5">
             <UFormField label="Prix" name="price">
-                <UInputNumber
-                    placeholder="Prix du produit"
-                    class="w-full"
-                    v-model="state.price"
-                />
+                <UInputNumber placeholder="Prix du produit" class="w-full" v-model="state.price" />
             </UFormField>
 
             <UFormField label="Plateforme" name="platform">
-                <USelect
-                    v-model="state.platform"
-                    :items="items"
-                    class="w-full"
-                />
+                <USelect v-model="state.platform" :items="items" class="w-full" />
             </UFormField>
 
-            <UFormField
-                v-if="state.platform == 'email'"
-                name="drive_link"
-                label="Lien Drive/Événement"
-                description="Collez le lien vers le drive ou l'événement"
-            >
-                <UInput
-                    placeholder=""
-                    class="w-full"
-                    v-model="state.drive_link"
-                />
+            <UFormField v-if="state.platform == 'email'" name="drive_link" label="Lien Drive/Événement"
+                description="Collez le lien vers le drive ou l'événement">
+                <UInput placeholder="" class="w-full" v-model="state.drive_link" />
             </UFormField>
 
-            <UFormField
-                v-if="
-                    state.drive_link &&
-                    state.drive_link.startsWith('https://drive.google.com')
-                "
-                name="service_email_added"
-            >
-                <UCheckbox
-                    v-model="state.service_email_added"
-                    label="Confirmer que l'email de service a été ajouté"
-                />
+            <UFormField v-if="
+                state.drive_link &&
+                state.drive_link.startsWith('https://drive.google.com')
+            " name="service_email_added">
+                <UCheckbox v-model="state.service_email_added" label="Confirmer que l'email de service a été ajouté" />
                 <div class="text-xs font-bold w-full">
                     {{ EMAIL_SERVICE }}
                 </div>
             </UFormField>
 
-            <UFormField
-                name="whatsapp_groupid"
-                v-if="state.platform == 'whatsapp'"
-                label="Lien du groupe WhatsApp"
-                description="Collez le lien vers le groupe WhatsApp"
-            >
-                <USelectMenu
-                    class="w-full"
-                    :search-input="{
-                        placeholder: 'Filtrer...',
-                        icon: 'i-lucide-search',
-                    }"
-                    v-model="state.whatsapp_groupid"
-                    :items="chats"
-                    placeholder="Sélectionnez un groupe WhatsApp"
-                    :virtualize="true"
-                    valueKey="value"
-                />
+            <UFormField name="whatsapp_groupid" v-if="state.platform == 'whatsapp'" label="Lien du groupe WhatsApp"
+                description="Collez le lien vers le groupe WhatsApp">
+                <USelectMenu class="w-full" :search-input="{
+                    placeholder: 'Filtrer...',
+                    icon: 'i-lucide-search',
+                }" v-model="state.whatsapp_groupid" :items="chats" placeholder="Sélectionnez un groupe WhatsApp"
+                    :virtualize="true" valueKey="value" />
             </UFormField>
         </div>
 
-        <UButton type="submit" class="mt-10" block @click="onSubmit">
+        <UButton type="submit" class="mt-10" block @click="onSubmit" :loading="loading">
             Soumettre
         </UButton>
     </UForm>
@@ -124,6 +75,7 @@ EMAIL_SERVICE = config.public.emailService;
 const productUrl = ref();
 const chat = ref();
 const inputMedia = ref();
+const loading = ref<boolean>(false)
 
 // # Setup the form validator schema
 const schema = v.object({
@@ -175,20 +127,20 @@ const toast = useToast();
 
 // Server to create the product
 async function onSubmit() {
-    // Validate drive link and service email
-    if (state.drive_link.includes("drive.google.com")) {
-        if (!state.service_email_added) {
-            toast.add({
-                title: "Erreur",
-                description:
-                    "Veuillez ajouter l'email de service au dossier Google Drive avant de continuer",
-                color: "error", // Changed from "error"
-            });
-            return;
-        }
-    }
-
+    loading.value = true
     try {
+        // Validate drive link and service email
+        if (state.drive_link.includes("drive.google.com")) {
+            if (!state.service_email_added) {
+                toast.add({
+                    title: "Erreur",
+                    description:
+                        "Veuillez ajouter l'email de service au dossier Google Drive avant de continuer",
+                    color: "error", // Changed from "error"
+                });
+                return;
+            }
+        }
         // 1. Upload image to Slink first (if an image was selected)
         if (inputMedia.value) {
             const formData = new FormData();
@@ -225,6 +177,6 @@ async function onSubmit() {
                 "Une erreur s'est produite lors de la création du produit",
             color: "error", // Changed from "error"
         });
-    }
+    } finally { loading.value = false }
 }
 </script>
