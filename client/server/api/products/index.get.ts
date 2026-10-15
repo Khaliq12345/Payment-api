@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
         page: params.page,
         start_date: params.start_date,
         end_date: params.end_date,
+        user_email: params.user_email
       },
     });
 

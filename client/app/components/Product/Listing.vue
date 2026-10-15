@@ -3,10 +3,7 @@
     <div v-for="product in products" class="flex flex-col">
         <UPageCard icon="i-lucide-file-digit" variant="soft" class="m-3">
             <template #title>
-                <ULink
-                    :to="`${$config.public.FRONTEND_URL}/admin/products/${product.id}`"
-                    >{{ product.title }}</ULink
-                >
+                <ULink :to="`${$config.public.FRONTEND_URL}/admin/products/${product.id}`">{{ product.title }}</ULink>
             </template>
             <div class="mb-2">Prix : {{ product.price }} XOF</div>
             <!-- Product url to copy -->
@@ -15,17 +12,10 @@
             </div>
             <!-- Edit or delete product -->
             <div class="flex justify-between">
-                <ProductEditForm
-                    v-model:title="product.title"
-                    v-model:description="product.description"
-                    v-model:price="product.price"
-                    :productId="product.id"
-                ></ProductEditForm>
+                <ProductEditForm v-model:title="product.title" v-model:description="product.description"
+                    v-model:price="product.price" :productId="product.id"></ProductEditForm>
 
-                <ProductDeleteModal
-                    :product-id="product.id"
-                    @deleted="$emit('deleted')"
-                ></ProductDeleteModal>
+                <ProductDeleteModal :product-id="product.id" @deleted="$emit('deleted')"></ProductDeleteModal>
             </div>
         </UPageCard>
     </div>

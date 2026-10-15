@@ -5,9 +5,7 @@
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white">
                     Détails du Client
                 </h3>
-                <UBadge color="success" variant="subtle" size="lg"
-                    >Succès</UBadge
-                >
+                <UBadge color="success" variant="subtle" size="lg">Succès</UBadge>
             </div>
         </template>
 
@@ -40,43 +38,26 @@
         <template #footer>
             <div class="space-y-6">
                 <!-- Bouton pour générer le lien -->
-                <UButton
-                    v-if="!paymentLink"
-                    block
-                    size="xl"
-                    icon="i-heroicons-currency-dollar"
-                    :loading="isTransactionLoading"
-                    @click="generateLink"
-                >
+                <UButton v-if="!paymentLink" block size="xl" icon="i-heroicons-currency-dollar"
+                    :loading="isTransactionLoading" @click="generateLink">
                     Générer le lien de paiement
                 </UButton>
 
                 <!-- Affichage du lien avec bouton Payer -->
                 <div v-else class="animate-fade-in space-y-2">
-                    <label
-                        class="text-sm font-medium text-gray-700 dark:text-gray-200"
-                    >
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-200">
                         Lien de paiement généré :
                     </label>
 
                     <div class="flex gap-2">
                         <!-- Champ input en lecture seule -->
-                        <UInput
-                            :model-value="paymentLink"
-                            readonly
-                            icon="i-heroicons-link"
+                        <UInput :model-value="paymentLink" readonly icon="i-heroicons-link"
                             class="flex-1 font-mono text-sm"
-                            input-class="text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800"
-                        />
+                            input-class="text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800" />
 
                         <!-- Bouton de redirection -->
-                        <UButton
-                            :to="paymentLink"
-                            target="_blank"
-                            color="primary"
-                            variant="solid"
-                            icon="i-heroicons-arrow-top-right-on-square"
-                        >
+                        <UButton :to="paymentLink" target="_blank" color="primary" variant="solid"
+                            icon="i-heroicons-arrow-top-right-on-square">
                             Payer
                         </UButton>
                     </div>
@@ -87,7 +68,6 @@
 </template>
 
 <script setup lang="ts">
-import type { CreatedCustomer } from "~/types/fedapay";
 
 const props = defineProps<{
     customer: object;
@@ -115,6 +95,7 @@ const generateLink = async () => {
                 customer_id: props.customer.id,
                 product_id: route.params.productId,
                 callback_url: `${config.public.FRONTEND_URL}/callback`,
+                user_email: localStorage.getItem('user')
             },
         });
 

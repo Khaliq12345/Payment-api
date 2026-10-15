@@ -4,21 +4,13 @@
         <UCard variant="subtle">
             <template #header>
                 <div class="flex justify-center">
-                    <UIcon
-                        name="i-heroicons-check-badge-solid"
-                        class="w-24 h-24 text-green-600 text-center mx-auto mb-6"
-                    />
+                    <UIcon name="i-heroicons-check-badge-solid"
+                        class="w-24 h-24 text-green-600 text-center mx-auto mb-6" />
                 </div>
             </template>
             <template #footer>
-                <UButton
-                    :to="inviteLink"
-                    target="_blank"
-                    color="success"
-                    size="xl"
-                    block
-                    class="text-xl font-bold py-6"
-                >
+                <UButton :to="inviteLink" target="_blank" color="success" size="xl" block
+                    class="text-xl font-bold py-6">
                     Me rediriger vers le groupe
                 </UButton>
             </template>
@@ -26,23 +18,14 @@
     </div>
 
     <!-- Déjà ajouté -->
-    <div
-        v-if="hasAdded && !inviteLink"
-        class="text-center bg-green-100 text-green-800 p-6 rounded-xl font-semibold"
-    >
+    <div v-if="hasAdded && !inviteLink" class="text-center bg-green-100 text-green-800 p-6 rounded-xl font-semibold">
         Vous avez déjà été ajouté au groupe WhatsApp
     </div>
 
     <!-- Bouton WhatsApp -->
-    <UButton
-        v-if="transaction.status === 'approved' && !inviteLink && !hasAdded"
-        @click="addToWhatsappGroup"
-        :loading="adding"
-        color="success"
-        size="xl"
-        block
-        class="font-bold text-xl py-8 shadow-xl hover:shadow-2xl transition-all duration-300"
-    >
+    <UButton v-if="transaction.status === 'approved' && !inviteLink && !hasAdded" @click="addToWhatsappGroup"
+        :loading="adding" color="success" size="xl" block
+        class="font-bold text-xl py-8 shadow-xl hover:shadow-2xl transition-all duration-300">
         Rejoindre le groupe WhatsApp maintenant
     </UButton>
 </template>
@@ -70,6 +53,7 @@ const addToWhatsappGroup = async () => {
             method: "POST",
             query: {
                 transaction_id: props.transaction.id,
+                user_email: localStorage.getItem('user')
             },
         });
 

@@ -1,28 +1,17 @@
 <template>
     <div class="lg:max-w-9/12 xl:max-w-1/2 mx-auto flex flex-col gap-10">
         <!-- Hero Image Cover -->
-        <div
-            v-if="productData?.media_url"
-            class="w-full overflow-hidden rounded-b-2xl shadow-lg"
-        >
-            <img
-                :src="productData?.media_url"
-                :alt="productData?.title"
-                class="w-full h-auto block"
-            />
+        <div v-if="productData?.media_url" class="w-full overflow-hidden rounded-b-2xl shadow-lg">
+            <img :src="productData?.media_url" :alt="productData?.title" class="w-full h-auto block" />
         </div>
 
         <div class="p-3 flex flex-col gap-10">
             <!-- Header of the page -->
-            <UPageHeader
-                :headline="`Prix: ${productData?.price} XOF`"
-                :title="productData?.title"
-                :description="productData?.description"
-                :ui="{
+            <UPageHeader :headline="`Prix: ${productData?.price} XOF`" :title="productData?.title"
+                :description="productData?.description" :ui="{
                     title: 'text-xl',
                     description: 'text-sm',
-                }"
-            />
+                }" />
             <UProgress animation="swing" v-if="isLoading" />
             <!-- Customer Form to fill -->
             <ProductCustomerForm v-model="customerData" v-if="!customerData" />
@@ -33,7 +22,6 @@
 </template>
 
 <script setup lang="ts">
-import type { CustomerState } from "~/types/fedapay";
 
 const route = useRoute();
 const productId = route.params.productId;

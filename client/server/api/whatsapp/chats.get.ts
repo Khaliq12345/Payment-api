@@ -1,9 +1,11 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event);
+  const params = getQuery(event);
   try {
     const response = await $fetch(event.path, {
       method: "GET",
       baseURL: config.public.apiUrl,
+      query: { user_email: params.user_email }
     });
     return response;
   } catch (error: any) {

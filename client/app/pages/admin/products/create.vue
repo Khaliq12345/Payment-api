@@ -22,6 +22,7 @@ const chats = ref<SelectMenuItem[]>([]);
 onMounted(async () => {
     const response = await $fetch("/api/whatsapp/chats", {
         method: "GET",
+        query: { user_email: localStorage.getItem('user') }
     });
 
     response.forEach((chat) => {

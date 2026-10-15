@@ -1,112 +1,53 @@
 <template>
-    <UForm
-        :schema="schema"
-        :state="state"
-        class="space-y-7"
-        @submit="onFormSubmit"
-    >
+    <UForm :schema="schema" :state="state" class="space-y-7" @submit="onFormSubmit">
         <!-- Prénom et Nom -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <UFormField label="Prénom" name="first_name" required>
-                <UInput
-                    v-model="state.first_name"
-                    placeholder="Ex: Jean"
-                    class="w-full"
-                />
+                <UInput v-model="state.first_name" placeholder="Ex: Jean" class="w-full" />
             </UFormField>
 
             <UFormField label="Nom" name="last_name" required>
-                <UInput
-                    v-model="state.last_name"
-                    placeholder="Ex: Dupont"
-                    class="w-full"
-                />
+                <UInput v-model="state.last_name" placeholder="Ex: Dupont" class="w-full" />
             </UFormField>
         </div>
 
         <!-- Email -->
         <UFormField label="Email" name="email" required>
-            <UInput
-                v-model="state.email"
-                type="email"
-                placeholder="exemple@email.com"
-                class="w-full"
-            />
+            <UInput v-model="state.email" type="email" placeholder="exemple@email.com" class="w-full" />
         </UFormField>
 
         <!-- WhatsApp et Confirmation -->
+        <!-- WhatsApp et Confirmation -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
-            <UFormField
-                label="WhatsApp"
-                name="whatsapp_number"
-                help="Format: 229..."
-                description="Votre numéro qui est connecter a Whatsapp"
-                required
-            >
-                <UInput
-                    v-model="state.whatsapp_number"
-                    placeholder="22997000000"
-                    type="tel"
-                    class="w-full"
-                    :loading="isLoading"
-                />
+            <UFormField label="Numéro WhatsApp" name="whatsapp_number"
+                description="Indicatif du Bénin : 229. N'ajoutez pas « 01 » après 229." required>
+                <UInput v-model="state.whatsapp_number" placeholder="22997000000" type="tel" class="w-full"
+                    :loading="isLoading" />
             </UFormField>
 
-            <UFormField
-                label="Confirmer WhatsApp"
-                name="confirm_whatsapp_number"
-                description="Répéter le numéro"
-                required
-            >
-                <UInput
-                    v-model="state.confirm_whatsapp_number"
-                    placeholder="22997000000"
-                    type="tel"
-                    class="w-full"
-                />
+            <UFormField label="Confirmer le numéro WhatsApp" name="confirm_whatsapp_number"
+                description="Saisissez à nouveau le même numéro." required>
+                <UInput v-model="state.confirm_whatsapp_number" placeholder="22997000000" type="tel" class="w-full" />
             </UFormField>
         </div>
 
         <!-- Telephone Mobile -->
         <div class="flex flex-col gap-5">
-            <UCheckbox
-                v-model="state.whatsapp_is_phone"
-                class="w-full"
-                label="Utiliser mon numéro WhatsApp comme numéro de téléphone"
-                required
-            />
+            <UCheckbox v-model="state.whatsapp_is_phone" class="w-full"
+                label="Utiliser mon numéro WhatsApp comme numéro de téléphone" required />
             <!-- Phone, if whatsapp is not phone -->
-            <UFormField
-                label="Telephone"
-                name="phone"
-                v-if="!state.whatsapp_is_phone"
-            >
-                <UInput
-                    v-model="state.phone"
-                    placeholder="22997000000"
-                    type="tel"
-                    class="w-full"
-                />
+            <UFormField label="Telephone" name="phone" v-if="!state.whatsapp_is_phone">
+                <UInput v-model="state.phone" placeholder="22997000000" type="tel" class="w-full" />
             </UFormField>
         </div>
 
         <!-- Pays -->
         <UFormField label="Pays" name="country" required>
-            <USelect
-                v-model="state.country"
-                :items="countries"
-                class="w-full"
-            />
+            <USelect v-model="state.country" :items="countries" class="w-full" />
         </UFormField>
 
         <!-- Bouton de soumission -->
-        <UButton
-            type="submit"
-            block
-            size="lg"
-            :loading="isLoading"
-            class="mt-5"
-        >
+        <UButton type="submit" block size="lg" :loading="isLoading" class="mt-5">
             Enregistrer
         </UButton>
     </UForm>
@@ -114,7 +55,7 @@
 
 <script setup lang="ts">
 import * as v from "valibot";
-import type { CreatedCustomer, CustomerState } from "~/types/fedapay";
+import type { CustomerState } from "~/types/fedapay";
 
 // Utilisation de defineModel pour mettre à jour l'état dans le parent
 const model = defineModel<CustomerState>({ required: true });
@@ -199,6 +140,7 @@ const verifyNumber = async (number: number) => {
         const response = await $fetch("/api/whatsapp/verify", {
             query: {
                 number: number,
+                user_email: localStorage.getItem('user')
             },
         });
         return response.existsWhatsapp;
@@ -228,6 +170,7 @@ const onFormSubmit = async (event: any) => {
                 country: state.country,
                 productId: route.params.productId,
             },
+            query: { user_email: localStorage.getItem('user') }
         });
 
         toast.add({

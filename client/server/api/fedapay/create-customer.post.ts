@@ -1,5 +1,6 @@
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
+  const params = getQuery(event);
   const config = useRuntimeConfig(event);
 
   if (!body)
@@ -18,6 +19,7 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch<any>(event.path, {
       method: "POST",
       body: JSON.stringify(externalPayload),
+      query: { user_email: params.user_email },
       headers: {
         accept: "application/json",
         "Content-Type": "application/json",

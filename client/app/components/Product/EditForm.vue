@@ -5,31 +5,18 @@
             <UCard>
                 <UForm :schema="schema" class="space-y-4" @submit="onSubmit">
                     <UFormField label="Titre" name="title">
-                        <UInput
-                            v-model="title"
-                            :placeholder="title"
-                            class="w-full"
-                        />
+                        <UInput v-model="title" :placeholder="title" class="w-full" />
                     </UFormField>
                     <UFormField label="Description" name="description">
-                        <UTextarea
-                            v-model="description"
-                            :placeholder="description"
-                            class="w-full"
-                        />
+                        <UTextarea v-model="description" :placeholder="description" class="w-full" />
                     </UFormField>
                     <UFormField label="Prix" name="price">
-                        <UInputNumber
-                            v-model="price"
-                            :placeholder="price.toString()"
-                            class="w-full"
-                        />
+                        <UInputNumber v-model="price" :placeholder="price.toString()" class="w-full" />
                     </UFormField>
-                    <UButton
-                        type="submit"
-                        :loading="loading"
-                        @click="onSubmit()"
-                    >
+                    <UFormField label="Image" name="mediaUrl">
+                        <UInput v-model="mediaUrl" :placeholder="mediaUrl" class="w-full" />
+                    </UFormField>
+                    <UButton type="submit" :loading="loading" @click="onSubmit()">
                         Enregistrer les modifications
                     </UButton>
                 </UForm>
@@ -45,6 +32,7 @@ const props = defineProps<{
     productId: string;
 }>();
 const title = defineModel("title");
+const mediaUrl = defineModel("mediaUrl");
 const description = defineModel("description");
 const price = defineModel("price");
 const schema = v.object({
@@ -72,6 +60,7 @@ const onSubmit = async () => {
                 title: title.value,
                 description: description.value,
                 price: price.value,
+                media_url: mediaUrl.value
             },
         });
         toast.add({

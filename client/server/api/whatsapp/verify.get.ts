@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   try {
     const response = await $fetch(event.path, {
       method: "GET",
-      query: query.number,
+      query: { number: query.number, user_email: query.user_email },
       baseURL: config.public.apiUrl,
     });
 

@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
       baseURL: config.public.apiUrl,
       query: {
         transaction_id: query.transaction_id,
+        user_email: query.user_email
       },
     });
 

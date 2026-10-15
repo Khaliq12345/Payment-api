@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
         customer_id: query.customer_id,
         product_id: query.product_id,
         callback_url: query.callback_url,
+        user_email: query.user_email
       },
       baseURL: config.public.apiUrl,
     });

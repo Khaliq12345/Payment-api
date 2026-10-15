@@ -110,6 +110,7 @@ const state = reactive({
     whatsapp_groupid: "",
     service_email_added: false,
     media_url: null,
+    user_email: ''
 });
 
 const items = ref<SelectItem[]>([
@@ -153,6 +154,7 @@ async function onSubmit() {
             state.media_url = slinkResponse.url;
         }
 
+        state.user_email = localStorage.getItem('user') as string
         const response = await $fetch("/api/products/add", {
             method: "POST",
             body: state,
