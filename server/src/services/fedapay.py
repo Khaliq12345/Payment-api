@@ -12,14 +12,14 @@ load_dotenv()
 
 
 class FedaPay:
-    def __init__(self) -> None:
+    def __init__(self, email: str) -> None:
+        self.database = Database()
         self.url = "https://api.fedapay.com/v1"
-        self.token = os.getenv("FEDAPAY_TOKEN")
+        self.token = self.database.get_fedapay_token(email)
         self.headers = {
             "Authorization": f"Bearer {self.token}",
             "Content-Type": "application/json",
         }
-        self.database = Database()
 
     def create_customer(self, customer_data: CustomerSchema) -> dict:
         """Create a new customer"""

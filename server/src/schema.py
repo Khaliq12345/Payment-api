@@ -1,6 +1,8 @@
 from enum import Enum
+from typing import Any, Dict, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
+from sqlmodel import SQLModel
 
 
 class Country(Enum):
@@ -56,3 +58,11 @@ class ProductCreate(BaseModel):
     drive_link: str | None = None
     whatsapp_groupid: str | None = None
     media_url: str | None = None
+    user_email: str
+
+
+# 1. Base fields
+class UserBase(BaseModel):
+    email: EmailStr
+    whatsapp_access: Optional[Dict[str, Any]] = None
+    fedapay_access: Optional[Dict[str, Any]] = None

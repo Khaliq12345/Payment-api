@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
-from src.api.dependencies import fedapayDepends
+from src.services.fedapay import FedaPay
 from src.services.whatsapp import Whatsapp
 from src.utils.utils import get_group_amount
 
@@ -8,12 +8,12 @@ router = APIRouter(prefix="/api/whatsapp", tags=["WHATSAPP"])
 
 
 @router.get("/verify")
-def verify_number(number: int):
+def verify_number(number: int, user_email: str):
     """
     Vérifie si un numéro est actif sur WhatsApp
     """
     try:
-        whatsapp = Whatsapp()
+        whatsapp = Whatsapp(user_email)
         is_active = whatsapp.check_whatsapp(number)
         return is_active
     except Exception as e:
@@ -23,9 +23,9 @@ def verify_number(number: int):
 
 
 @router.get("/chats")
-def get_chats():
+def get_chats(user_email: str):
     try:
-        whatsapp = Whatsapp()
+        whatsapp = Whatsapp(user_email)
         chats = whatsapp.get_chats()
 
         # Filtrer uniquement les chats avec un "name"
@@ -48,13 +48,14 @@ def get_chats():
 
 
 @router.post("/add")
-def add_user_to_group(fedapayDepends: fedapayDepends, transaction_id: int):
+def add_user_to_group(transaction_id: int, user_email: str):
     """
     Ajouter un utilisateur à un groupe WhatsApp
     """
     try:
-        whatsapp = Whatsapp()
-        transaction = fedapayDepends.get_transaction(transactionId=transaction_id)
+        whatsapp = Whatsapp(user_email)
+        fedapay = FedaPay(user_email)
+        transaction = fedapay.get_transaction(transactionId=transaction_id)
         if not transaction.group_id:
             raise HTTPException(
                 status_code=403,

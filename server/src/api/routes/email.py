@@ -1,5 +1,3 @@
-from hmac import trans_5C
-
 from fastapi import APIRouter, HTTPException
 
 from src.api.dependencies import emailDepends, fedapayDepends, googleDepends

@@ -1,36 +1,27 @@
-import os
-
-from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
-
-load_dotenv()
+from src.api.dependencies import databaseDepends
 
 router = APIRouter(prefix="/api/auth", tags=["AUTHENTICATE"])
-
-# Identifiants depuis .env
-ENV_USERNAME = os.getenv("AUTH_USERNAME")
-ENV_PASSWORD = os.getenv("AUTH_PASSWORD")
 
 
 class TokenResponse(BaseModel):
     login: bool
 
 
-@router.post("/login", response_model=TokenResponse)
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    """Vérification simple du login via OAuth2PasswordRequestForm"""
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+)
+async def login(
+    db: databaseDepends,
+    form_data: OAuth2PasswordRequestForm = Depends(),
+):
+    """Vérification du login depuis la table Users"""
 
-    # 1. Vérifier si les variables sont dans l'environnement
-    if not ENV_USERNAME or not ENV_PASSWORD:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="AUTH_USERNAME or AUTH_PASSWORD missing in .env",
-        )
-
-    # 2. Vérifier les identifiants envoyés
-    if form_data.username != ENV_USERNAME or form_data.password != ENV_PASSWORD:
+    is_logged_in = db.is_user_info_correct(form_data.username, form_data.password)
+    if not is_logged_in:
         return TokenResponse(login=False)
 
     # 3. Succès

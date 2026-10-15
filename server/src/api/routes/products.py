@@ -10,11 +10,7 @@ router = APIRouter(prefix="/api/products", tags=["PRODUCTS"])
 
 
 @router.post("/add")
-def add_product(
-    payload: ProductCreate,
-    db: databaseDepends,
-):
-    print(payload)
+def add_product(payload: ProductCreate, db: databaseDepends):
     try:
         if (payload.platform.value == "whatsapp") and (not payload.whatsapp_groupid):
             raise HTTPException(
@@ -40,6 +36,7 @@ def add_product(
 @router.get("/")
 def list_products(
     db: databaseDepends,
+    user_email: str,
     page: int = 1,
     page_size: int = 10,
     platform: str | None = None,
@@ -57,6 +54,7 @@ def list_products(
             created_date=start_date,
             end_date=end_date,
             price=price,
+            user_email=user_email,
         )
         return products
 
@@ -81,10 +79,7 @@ def list_customers(db: databaseDepends, product_id: str) -> list[Customer]:
 
 
 @router.get("/{product_id}")
-def get_product(
-    product_id: str,
-    db: databaseDepends,
-):
+def get_product(product_id: str, db: databaseDepends):
     try:
         product = db.get_product(product_id)
         if not product:
@@ -103,11 +98,11 @@ def get_product(
 @router.post("/update")
 def edit_product(db: databaseDepends, product_id: str, product_info: dict):
     try:
-        print(product_info)
         title = product_info.get("title")
         description = product_info.get("description")
         price = product_info.get("price")
-        product = db.edit_product(product_id, title, description, price)
+        media_url = product_info.get("media_url")
+        product = db.edit_product(product_id, title, description, price, media_url)
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
         return product
@@ -122,10 +117,7 @@ def edit_product(db: databaseDepends, product_id: str, product_info: dict):
 
 
 @router.delete("/delete")
-def delete_product(
-    product_id: str,
-    db: databaseDepends,
-):
+def delete_product(product_id: str, db: databaseDepends):
     try:
         # Vérifier que le produit existe
         product = db.get_product(product_id)

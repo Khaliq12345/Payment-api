@@ -2,11 +2,8 @@ import json
 import secrets
 import time
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
 from typing import Optional
-
-from dateparser import parse, parser
-from sqlmodel import Session, SQLModel, create_engine, delete, or_, select
+from sqlmodel import Session, SQLModel, and_, create_engine, delete, or_, select
 
 from src.config import (
     DATABASE_HOST,
@@ -15,20 +12,17 @@ from src.config import (
     DATABASE_PORT,
     DATABASE_USERNAME,
 )
-from src.model import Customer, Product
+from src.model import Customer, Product, User
 from src.schema import Customer as CustomerSchema
 from src.schema import ProductCreate
-
-# TODO
-# 1. Fix the get_products filters
 
 
 class Database:
     def __init__(self) -> None:
         # Base de données SQLite stockée dans server/src/storage/app.db
-        storage_dir = Path(__file__).resolve().parent
-        db_path = storage_dir / "app.db"
-        dev_db_url = f"sqlite:///{db_path}"
+        # storage_dir = Path(__file__).resolve().parent
+        # db_path = storage_dir / "app.db"
+        # dev_db_url = f"sqlite:///{db_path}"
         prod_db_url = f"postgresql://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}"
         self.engine = create_engine(prod_db_url)
 
@@ -62,6 +56,7 @@ class Database:
                 drive_link=product_info.drive_link,
                 whatsapp_groupid=product_info.whatsapp_groupid,
                 media_url=product_info.media_url,
+                user_email=product_info.user_email,
             )
             session.add(product)
             session.commit()
@@ -69,6 +64,7 @@ class Database:
 
     def get_products(
         self,
+        user_email: str,
         page: int = 1,
         page_size: int = 10,
         platform: Optional[str] = None,
@@ -82,6 +78,7 @@ class Database:
         """
         with Session(self.engine) as session:
             stmt = select(Product)
+            stmt = stmt.where(Product.user_email == user_email)
 
             if (platform) and (platform != "all") and (platform != "All"):
                 stmt = stmt.where(Product.platform == platform)
@@ -105,7 +102,10 @@ class Database:
             results = session.exec(stmt).all()
             return list(results)
 
-    def get_product(self, product_id: str) -> Optional[Product]:
+    def get_product(
+        self,
+        product_id: str,
+    ) -> Optional[Product]:
         """
         Récupère un produit par son id.
         """
@@ -128,6 +128,7 @@ class Database:
         title: str | None,
         description: str | None,
         price: float | None,
+        media_url: str | None,
     ) -> Product | None:
         """
         Modifie un produit par son id.
@@ -142,6 +143,8 @@ class Database:
                     product.description = description
                 if price:
                     product.price = price
+                if media_url:
+                    product.media_url = media_url
                 product_data = json.loads(product.model_dump_json())
                 session.add(product)
                 session.commit()
@@ -156,7 +159,10 @@ class Database:
             return list(records)
 
     def add_customer(
-        self, customer_data: CustomerSchema, fedapay_id: str, product_id: str
+        self,
+        customer_data: CustomerSchema,
+        fedapay_id: str,
+        product_id: str,
     ) -> Customer:
         """Add a new customer to the db"""
         with Session(self.engine) as session:
@@ -200,3 +206,34 @@ class Database:
             if customer:
                 return True
             return False
+
+    # -----------User--------------------------
+    def is_user_info_correct(self, email: str, password: str) -> bool:
+        with Session(self.engine) as session:
+            stmt = select(User).where(
+                and_(User.email == email, User.password == password)
+            )
+            user_data = session.exec(stmt).first()
+            if user_data:
+                return True
+            return False
+
+    def get_fedapay_token(self, email: str) -> Optional[str]:
+        with Session(self.engine) as session:
+            stmt = select(User).where(User.email == email)
+            user_data = session.exec(stmt).first()
+
+            if user_data and user_data.fedapay_access:
+                return user_data.fedapay_access.get("token")
+
+            return None
+
+    def get_whatsapp_token(self, email: str) -> Optional[str]:
+        with Session(self.engine) as session:
+            stmt = select(User).where(User.email == email)
+            user_data = session.exec(stmt).first()
+
+            if user_data and user_data.whatsapp_access:
+                return user_data.whatsapp_access.get("session")
+
+            return None
