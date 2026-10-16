@@ -58,7 +58,7 @@ const addToWhatsappGroup = async () => {
         });
 
         // check if user is added and display success notification
-        if (response.addParticipant === true) {
+        if (response.success === true) {
             hasAdded.value = true;
             inviteLink.value = `https://chat.whatsapp.com/${props.transaction.group_id}`;
             toast.add({
