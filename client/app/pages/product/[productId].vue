@@ -43,6 +43,7 @@ const loadProductInfo = async () => {
         );
         productData.value = response;
         console.log(productData.value);
+        localStorage.setItem("user", response.user_email);
         toast.add({
             title: "Product Loaded",
             color: "success",
