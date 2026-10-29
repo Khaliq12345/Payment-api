@@ -230,6 +230,7 @@ class Database:
 
     def get_whatsapp_token(self, email: str) -> Optional[str]:
         with Session(self.engine) as session:
+            print(email)
             stmt = select(User).where(User.email == email)
             user_data = session.exec(stmt).first()
 

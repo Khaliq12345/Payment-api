@@ -30,6 +30,7 @@ class Whatsapp:
 
     def get_chats(self) -> list[dict]:
         """Get all whatsapp chat"""
+        print(self.url, self.session)
         url = f"{self.url}/api/sessions/{self.session}/groups"
         response = httpx.get(url, headers=self.headers)
         return response.json()

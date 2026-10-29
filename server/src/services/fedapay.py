@@ -56,7 +56,10 @@ class FedaPay:
 
     def search_customer(self, email: str) -> dict | None:
         """Find a customer by email"""
-        response = httpx.get(f"{self.url}/customers/search", headers=self.headers)
+        response = httpx.get(
+            f"{self.url}/customers/search?page=1&per_page=25&filters[compare][email][op]==&filters[compare][email][value]={email}&filters[orders][created_at]=desc&locale=fr",
+            headers=self.headers,
+        )
         response.raise_for_status()
         json_data = response.json()
         for customer in json_data["v1/customers"]:
